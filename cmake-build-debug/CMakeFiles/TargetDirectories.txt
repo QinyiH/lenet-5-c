@@ -1,0 +1,3 @@
+/home/assassin/CLionProjects/lenet/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/assassin/CLionProjects/lenet/cmake-build-debug/CMakeFiles/lenet.dir
+/home/assassin/CLionProjects/lenet/cmake-build-debug/CMakeFiles/edit_cache.dir
