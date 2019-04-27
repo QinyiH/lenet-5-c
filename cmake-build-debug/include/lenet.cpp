@@ -12,13 +12,12 @@ using namespace std;
 
 
 // 初始化lenet类
-lenet::lenet(const vector<Layer> &layers, float alpha, float eta, int batchsize, int epochs, activation_function_type activ_func_type) //down_sample_type down_samp_type
+lenet::lenet(const vector<Layer> &layers, float alpha, float eta, int batchsize, int epochs) //down_sample_type down_samp_type
         :_layers(layers),
          _alpha(alpha),
          _eta(eta),
          _batchsize(batchsize),
-         _epochs(epochs),
-         _activation_func_type(activ_func_type),
+         _epochs(epochs)
 {
     // 依据网络结构设置lenet.layers, 初始化一个lenet网络
     init();
@@ -31,7 +30,7 @@ lenet::lenet(const vector<Layer> &layers, float alpha, float eta, int batchsize,
 
 
 // lenet网络，训练
-void lenet::train(const vector<Mat> &train_x, const vector<vector<double>> &train_y)
+void lenet::train(const vector<Mat> &train_x, const vector<Mat> &train_y)
 {
     cout << "begin to train" << endl;
 
@@ -66,7 +65,7 @@ void lenet::train(const vector<Mat> &train_x, const vector<vector<double>> &trai
         {
             // 取出打乱顺序后的batchsize个样本和对应的标签
             vector<Mat> batch_train_x;
-            vector<vector<double>> batch_train_y;
+            vector<Mat> batch_train_y;
 
             for (int i = L*_batchsize; i < min((L + 1)*_batchsize, m); i++)// (L+1)*_batchsize在最后一次循环中可能会大于m
             {
@@ -79,13 +78,13 @@ void lenet::train(const vector<Mat> &train_x, const vector<vector<double>> &trai
 
             // 在当前的网络权值和网络输入下计算网络的输出(正向计算)
             clock_t tic_ff = clock();
-            //TODO 改写feed forward
             feed_forward(batch_train_x);
             clock_t toc_ff = clock();
             cout << "                          batches " << L+1 << " feedforward time: " << (double)(toc_ff - tic_ff) / 1000 << " seconds" << endl;
 
             // 得到上面的网络输出后，通过对应的样本标签用bp算法来得到误差对网络权值(反向传播) 的导数
             clock_t tic_bp = clock();
+            //TODO 改写bp
             back_propagation(batch_train_y);
             clock_t toc_bp = clock();
             cout << "                          batches " << L + 1 << " back propagation time: " << (double)(toc_bp - tic_bp) / 1000 << " seconds" << endl;
@@ -315,13 +314,15 @@ void lenet::feed_forward(const vector<Mat> &train_x)
                 }
 
                 // 2.偏置(加)
+                //TODO B的调用
                 for (int i = 0; i < _batchsize; ++i) {
-                    _layers.at(L).X.at(J).at(i) = z.at(i) + _layers.at(L).B.at(J);
+
+                    _layers.at(L).X.at(J).at(i) = z.at(i) + _layers.at(L).B[J];
                 }
 
 
                 // 3.ReLU映射
-                _layers.at(L).X.at(J) = activation_function(_layers.at(L).X.at(J), _activation_func_type);
+                _layers.at(L).X.at(J) = activation_function(_layers.at(L).X.at(J), _layers.at(L).activationfunction_type);
             }
         }
 
@@ -390,7 +391,7 @@ void lenet::feed_forward(const vector<Mat> &train_x)
                 // in = W*X + B (1)加权, (2)偏置(加)
                 vector<Mat> fcl_map_in = full_connect(_layers.at(L).W,_layers.at(L - 1).X_vector , _layers.at(L).B);
                 // out = activ(in) (3)sigmoid映射
-                _layers.at(L).X_vector = activation_function(fcl_map_in, _activation_func_type);
+                _layers.at(L).X_vector = activation_function(fcl_map_in,_layers.at(L).activationfunction_type);
 
             }
             else if (_layers.at(L - 1).type == 'f')
@@ -405,10 +406,7 @@ void lenet::feed_forward(const vector<Mat> &train_x)
                 // in = W*X + B (1)加权, (2)偏置(加)
                 vector<Mat> fcl_map_in = full_connect(_layers.at(L).W,_layers.at(L - 1).X_vector , _layers.at(L).B);
                 // out = activ(in) (3)sigmoid映射
-                _layers.at(L).X_vector = activation_function(fcl_map_in, _activation_func_type);
-
-                // 特别注意:
-                // 全连接输出层涉及到三个运算 : (1)加权, (2)偏置(加), (3)sigmoid映射
+                _layers.at(L).X_vector = activation_function(fcl_map_in, _layers.at(L).activationfunction_type);
             }
         }
     }
@@ -419,13 +417,13 @@ void lenet::feed_forward(const vector<Mat> &train_x)
 
 
 // lenet网络,反向传播(批处理算法)
-void lenet::back_propagation(const Array2Dd &train_y)
+void lenet::back_propagation(const vector<Mat> &train_y)
 {
     // lenet网络层数
     int n = _layers.size();
 
     // 输出误差: 预测值-期望值
-    Array2Dd E = _layers.at(n - 1).X_vector - train_y;
+    vector<Mat> E = calc_error(_Y, train_y);
 
     // 输出层灵敏度(残差)
     // 注意，这里需要说明下，这里对应的公式是 delta = (y - t).*f'(u),但是这里为什么是f'(x)呢？
@@ -433,7 +431,7 @@ void lenet::back_propagation(const Array2Dd &train_y)
     // 其中，u表示当前层输入，x表示当前层输出。
     _layers.at(n - 1).Delta_vector = E * derivation(_layers.at(n - 1).X_vector, _activation_func_type);
 
-    // 代价函数是均方误差,已对样本数做平均
+    // loss_function是均方误差,已对样本数做平均
     _err = 0.5 * E.pow(2).sum() / E.size();// 当前轮的当前批次的均方误差
 
     // ************** 灵敏度(残差)的反向传播 ******************************
@@ -595,24 +593,25 @@ void lenet::back_propagation(const Array2Dd &train_y)
 
         // =====================================================================
         // 以下代码用于第3,5层(下采样层)的计算
+        //去掉，maxpooling不需要参数
 
-        if (_layers.at(L).type == 's')
-        {
-            _layers.at(L).Beta_grad.resize(_layers.at(L).iChannel);
-            _layers.at(L).B_grad.resize(_layers.at(L).iChannel);
-
-            int batch_num = _layers.at(L).Delta.at(0).size();
-
-            for (int J = 0; J < _layers.at(L).iChannel; J++)
-            {
-                // 这里对下采样层的Beta的梯度求解，类似于W，然后求平均
-                // 为什么是全部相加呢？因为Beta和B影响了全部的元素啊。。当然要相加了
-                _layers.at(L).Beta_grad.at(J) = sum_vector(_layers.at(L).Delta.at(J).reshape_to_vector() * (_layers.at(L).X_down.at(J).reshape_to_vector())) * (1.0 / (double)_layers.at(L).Delta.at(J).size());
-
-                // 对所有net.layers{L}.Delta{J}的叠加,结果要对样本数做平均
-                _layers.at(L).B_grad.at(J) = sum_vector(_layers.at(L).Delta.at(J).reshape_to_vector()) * (1.0 / (double)_layers.at(L).Delta.at(J).size());
-            }
-        }
+//        if (_layers.at(L).type == 's')
+//        {
+//            _layers.at(L).Beta_grad.resize(_layers.at(L).iChannel);
+//            _layers.at(L).B_grad.resize(_layers.at(L).iChannel);
+//
+//            int batch_num = _layers.at(L).Delta.at(0).size();
+//
+//            for (int J = 0; J < _layers.at(L).iChannel; J++)
+//            {
+//                // 这里对下采样层的Beta的梯度求解，类似于W，然后求平均
+//                // 为什么是全部相加呢？因为Beta和B影响了全部的元素啊。。当然要相加了
+//                _layers.at(L).Beta_grad.at(J) = sum_vector(_layers.at(L).Delta.at(J).reshape_to_vector() * (_layers.at(L).X_down.at(J).reshape_to_vector())) * (1.0 / (double)_layers.at(L).Delta.at(J).size());
+//
+//                // 对所有net.layers{L}.Delta{J}的叠加,结果要对样本数做平均
+//                _layers.at(L).B_grad.at(J) = sum_vector(_layers.at(L).Delta.at(J).reshape_to_vector()) * (1.0 / (double)_layers.at(L).Delta.at(J).size());
+//            }
+//        }
 
         // =====================================================================
         // 以下代码用于第6,7,8层(全连接层)的计算

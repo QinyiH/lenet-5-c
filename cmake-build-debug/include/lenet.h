@@ -20,6 +20,9 @@ typedef struct {
     // 当前层的类别
     char type;// 输入层：i；卷积层：c；降采样层：s；全连接层：f
 
+    // 当前层用的激活函数
+    activation_function_type activationfunction_type;
+
     // 当前层的通道数目
     int iChannel;
 
@@ -101,14 +104,13 @@ class lenet {
 public:
 
     // 初始化lenet网络
-    lenet(const vector<Layer> &layers, float alpha, float eta, int batchsize, int epochs,
-          activation_function_type activ_func_type);//down_sample_type down_samp_type
+    lenet(const vector<Layer> &layers, float alpha, float eta, int batchsize, int epochs);//down_sample_type down_samp_type
 
     // CNN网络，训练
-    void train(const vector<Mat> &train_x, const vector<vector<double>> &train_y);
+    void train(const vector<Mat> &train_x, const vector<Mat> &train_y);
 
     // CNN网络，测试，返回错误率
-    double test(const vector<Mat> &test_x, const vector<vector<double>> &test_y);
+    double test(const vector<Mat> &test_x, const vector<Mat> &test_y);
 
 
     ////////////////////// 非主要函数 /////////////////////////////////////////////
@@ -128,7 +130,7 @@ private:
     void feed_forward(const vector<Mat> &train_image);
 
     // CNN网络，反向传播(批处理算法)
-    void back_propagation(const vector<vector<double>> &train_label);
+    void back_propagation(const vector<Mat> &train_label);
 
     // CNN网络，卷积层和输出层的权值更新(附加惯性项)
     void update(void);

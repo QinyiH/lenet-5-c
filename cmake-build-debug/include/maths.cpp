@@ -160,6 +160,24 @@ vector<Mat> reshape2vector(const vector<Mat> &vector_matrix) {
     return vector_vector;
 }
 
+vector<Mat> calc_error(const vector<Mat> &Y, const vector<Mat> &label) {
+    int batch=Y.size();
+    if(batch!=label.size()){
+        cout << "bacth数量不一致，train fail!"<<endl;
+        vector<Mat> tmp;
+        return tmp;
+    }
+    vector<Mat> batch_error;
+    for (int i = 0; i < batch; ++i) {
+        batch_error.push_back(Y.at(i)-label.at(i));
+    }
+    return batch_error;
+}
+
+vector<Mat> full_connect(const Mat &Weights, const vector<Mat> &vector_vector, const Mat &bias) {
+    return vector<Mat>();
+}
+
 vector<double> soft_max(const vector<double> &vector) {
     int dim = vector.size();
     if (dim == 0) {
@@ -173,14 +191,11 @@ vector<double> soft_max(const vector<double> &vector) {
     for (int j = 0; j < dim; ++j) {
         SUM_Ex = SUM_Ex + exp(vector.at(j));
     }
-    for (int i = 0; i < col; i++) {
+    for (int i = 0; i < dim; i++) {
         // sigmoid function: y = exp(xi) / sum(exp(xi))
         vector_softmax.at(i) = exp(vector.at(i)) / SUM_Ex;
     }
-}
-
-return
-vector_softmax;
+    return vector_softmax;
 }
 
 //TODO：有空再做,应该是sigmoid

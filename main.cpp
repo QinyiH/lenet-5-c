@@ -9,7 +9,7 @@ using namespace cv;
 int main() {
     string file_addr = "/home/assassin/dataset/MNIST";
     vector<Mat> train_imageset, test_imageset;
-    vector<vector<double>> train_labelSet, test_labelSet;
+    vector<Mat> train_labelSet, test_labelSet;
     create_database(file_addr, train_imageset, test_imageset, train_labelSet, test_labelSet);
     cout << "train数据集总数：" << train_labelSet.size() << endl;
     cout << "test数据集总数：" << test_labelSet.size() << endl;
@@ -30,6 +30,7 @@ int main() {
     convolutional_layer_2.iChannel = 2;
     convolutional_layer_2.iSizeKer = 5;
     convolutional_layer_2.padding = 2;
+    convolutional_layer_2.activationfunction_type = ReLU;
     layers.push_back(convolutional_layer_2);
 
     Layer subsampling_layer_3;// 第三层：降采样层
@@ -40,6 +41,7 @@ int main() {
     convolutional_layer_4.type = 'c';
     convolutional_layer_4.iChannel = 4;
     convolutional_layer_4.iSizeKer = 5;
+    convolutional_layer_4.activationfunction_type = ReLU;
     layers.push_back(convolutional_layer_4);
 
     Layer subsampling_layer_5;// 第五层：降采样层
@@ -49,6 +51,7 @@ int main() {
     Layer fully_connected_layer_6;// 第六层：全连接层
     fully_connected_layer_6.type = 'f';
     fully_connected_layer_6.iChannel = 120;
+    fully_connected_layer_6.activationfunction_type = ReLU;
     layers.push_back(fully_connected_layer_6);
 
     Layer fully_connected_layer_7;// 第七层：全连接层
@@ -59,6 +62,7 @@ int main() {
     Layer fully_connected_layer_8;// 第八层：全连接层（输出层）
     fully_connected_layer_8.type = 'f';
     fully_connected_layer_8.iChannel = 10;
+    fully_connected_layer_8.activationfunction_type = SoftMax;
     layers.push_back(fully_connected_layer_8);
 
     // 定义初始化参数
@@ -66,11 +70,10 @@ int main() {
     double eta = 0.5f;// 惯性系数[0,0.95], >=1不收敛，==0为不用惯性项
     int batchsize = 10;// 每次用batchsize个样本计算一个delta调整一次权值，每十个样本做平均进行调节
     int epochs = 25;// 训练集整体迭代次数
-    activation_function_type activ_func_type = ReLU;// 激活函数类型
     //down_sample_type down_samp_type = MaxPooling;// 降采样（池化）类型
 
     // 依据网络结构设置CNN.layers，初始化一个CNN网络
-    lenet LeNet(layers, alpha, eta, batchsize, epochs, activ_func_type);
+    lenet LeNet(layers, alpha, eta, batchsize, epochs);
     //****************************************************************************************//
 
     return 0;

@@ -53,12 +53,15 @@ vector<int> randperm_vector(int num);
 //TODO down sample & up sample
 vector<Mat> down_sample_max_pooling(const vector<Mat> &vector_array);
 
-vector<Mat> up_sample_mean_pooling(const vector<Mat> &vector_array3D);
+vector<Mat> up_sample_max_pooling(const vector<Mat> &vector_array3D);
 
 //铺平函数，用于第一层full connected layer
 vector<Mat> reshape2vector(const vector<Mat>& vector_matrix);
 
 //full connector layer的计算
 vector<Mat> full_connect(const Mat& Weights,const vector<Mat>& vector_vector, const Mat& bias);
+
+//计算误差
+vector<Mat> calc_error(const vector<Mat>& Y, const vector<Mat>& label);
 
 #endif //LENET_MATHS_H

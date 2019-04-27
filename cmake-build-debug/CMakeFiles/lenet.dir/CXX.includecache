@@ -6,17 +6,53 @@
 
 #IncludeRegexTransform: 
 
+/home/assassin/CLionProjects/lenet/cmake-build-debug/include/data.cpp
+data.h
+/home/assassin/CLionProjects/lenet/cmake-build-debug/include/data.h
+iostream
+-
+
 /home/assassin/CLionProjects/lenet/cmake-build-debug/include/data.h
 opencv2/imgproc/imgproc.hpp
 -
 opencv2/core/core.hpp
 -
-vector
--
 opencv2/highgui/highgui.hpp
+-
+vector
 -
 string
 -
+
+/home/assassin/CLionProjects/lenet/cmake-build-debug/include/lenet.cpp
+lenet.h
+/home/assassin/CLionProjects/lenet/cmake-build-debug/include/lenet.h
+maths.h
+/home/assassin/CLionProjects/lenet/cmake-build-debug/include/maths.h
+time.h
+-
+iostream
+-
+
+/home/assassin/CLionProjects/lenet/cmake-build-debug/include/lenet.h
+opencv2/highgui/highgui.hpp
+-
+opencv2/imgproc/imgproc.hpp
+-
+opencv2/core/core.hpp
+-
+iostream
+-
+vector
+-
+string
+-
+maths.h
+-
+
+/home/assassin/CLionProjects/lenet/cmake-build-debug/include/maths.cpp
+maths.h
+/home/assassin/CLionProjects/lenet/cmake-build-debug/include/maths.h
 
 /home/assassin/CLionProjects/lenet/cmake-build-debug/include/maths.h
 math.h
@@ -24,6 +60,16 @@ math.h
 stdlib.h
 -
 time.h
+-
+vector
+-
+opencv2/core/core.hpp
+-
+iostream
+-
+opencv2/highgui/highgui.hpp
+-
+opencv2/imgproc/imgproc.hpp
 -
 
 /home/assassin/CLionProjects/lenet/main.cpp
@@ -33,6 +79,8 @@ cmake-build-debug/include/data.h
 /home/assassin/CLionProjects/lenet/cmake-build-debug/include/data.h
 cmake-build-debug/include/maths.h
 /home/assassin/CLionProjects/lenet/cmake-build-debug/include/maths.h
+cmake-build-debug/include/lenet.h
+/home/assassin/CLionProjects/lenet/cmake-build-debug/include/lenet.h
 
 /usr/local/opencv4/include/opencv4/opencv2/calib3d.hpp
 opencv2/core.hpp
@@ -1071,4 +1119,22 @@ opencv2/imgproc.hpp
 /usr/local/opencv4/include/opencv4/opencv2/videoio.hpp
 opencv2/core.hpp
 /usr/local/opencv4/include/opencv4/opencv2/opencv2/core.hpp
+
+include/maths.h
+math.h
+-
+stdlib.h
+-
+time.h
+-
+vector
+-
+opencv2/core/core.hpp
+-
+iostream
+-
+opencv2/highgui/highgui.hpp
+-
+opencv2/imgproc/imgproc.hpp
+-
 

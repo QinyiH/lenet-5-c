@@ -14,7 +14,7 @@ using namespace std;
 
 size_t load_image(string file_addr, vector<cv::Mat>& database);
 
-void create_label(vector<int> image_size, vector<vector<double>>& label_set);
+void create_label(vector<int> image_size, vector<cv::Mat>& label_set);
 
-void create_database(string file_addr, vector<cv::Mat>& train_imageSet, vector<cv::Mat>& test_imageSet, vector<vector<double>>& train_labelSet, vector<vector<double>>& test_labelSet);
+void create_database(string file_addr, vector<cv::Mat>& train_imageSet, vector<cv::Mat>& test_imageSet, vector<cv::Mat>& train_labelSet, vector<cv::Mat>& test_labelSet);
 #endif //LENET_DATA_H

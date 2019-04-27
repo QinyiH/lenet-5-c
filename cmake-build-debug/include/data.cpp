@@ -18,13 +18,13 @@ size_t load_image(string file_addr, vector<cv::Mat>& database)
     return image_size;
 }
 
-void create_label(vector<int> image_size,vector<vector<double>>& label_set)
+void create_label(vector<int> image_size,vector<cv::Mat>& label_set)
 {
-    vector<double> one_hot;
+    cv::Mat one_hot,init_index=cv::Mat::zeros(10,1,CV_8UC1);
     for (int i = 0; i < 10; i++)
     {
-        one_hot.assign(10, 0);
-        one_hot.at(i) = 1;
+        one_hot=init_index;
+        one_hot[i] = 1;
         for (int j = 0; j < image_size.at(i); j++)
         {
             label_set.push_back(one_hot);
@@ -32,7 +32,7 @@ void create_label(vector<int> image_size,vector<vector<double>>& label_set)
     }
 }
 
-void create_database(string file_addr, vector<cv::Mat>& train_imageSet, vector<cv::Mat>& test_imageSet, vector<vector<double>>& train_labelSet, vector<vector<double>>& test_labelSet)
+void create_database(string file_addr, vector<cv::Mat>& train_imageSet, vector<cv::Mat>& test_imageSet, vector<cv::Mat>& train_labelSet, vector<cv::Mat>& test_labelSet)
 {
     //TODO:load_image() and create_label() in Array2D.h
     string train_set_addr = file_addr+"/trainingSet/";
