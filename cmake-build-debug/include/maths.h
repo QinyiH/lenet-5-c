@@ -55,4 +55,10 @@ vector<Mat> down_sample_max_pooling(const vector<Mat> &vector_array);
 
 vector<Mat> up_sample_mean_pooling(const vector<Mat> &vector_array3D);
 
+//铺平函数，用于第一层full connected layer
+vector<Mat> reshape2vector(const vector<Mat>& vector_matrix);
+
+//full connector layer的计算
+vector<Mat> full_connect(const Mat& Weights,const vector<Mat>& vector_vector, const Mat& bias);
+
 #endif //LENET_MATHS_H

@@ -48,7 +48,7 @@ typedef struct {
     vector<vector<Mat>> Ker_grad;// Ker_grad[I][J], I为前一层通道数，J为当前层通道数。只针对卷积层，其它层此参数无意义
 
     // 当前层与上一层的连接权值
-    vector<vector<double>> W;// 只针对全连接层，其它层此参数无意义
+    Mat W;// 只针对全连接层，其它层此参数无意义
     // 注意是W[I列][J行],I为当前层全连接输入个数（上一层的数目），J为当前层数目
     // 比如第7层，就是W[84行x120列]
 
@@ -62,13 +62,13 @@ typedef struct {
     // 比如第7层，就是W[84行x120列]
 
     // 当前层输出通道的加性偏置
-    vector<double> B;
+    Mat B;
 
     // 当前层输出通道的加性偏置的更新量
-    vector<double> B_delta;
+    Mat B_delta;
 
     // 当前层输出通道的加性偏置的梯度
-    vector<double> B_grad;
+    Mat B_grad;
 
     // 当前层输出通道的乘性偏置
     //vector<double> Beta;// 只针对下采样层，其它层此参数无意义
@@ -84,7 +84,7 @@ typedef struct {
     // 只针对下采样层，其它层此参数无意义
 
     // 全连接层的输出，或者下一层为全连接层的当前层所有输出图组合成的一个向量
-    vector<vector<double>> X_vector;// 注意是_batchsize幅输入输出同时处理，所以不是一维向量，而是2D，维度为[列_batchsize, 行iChannel]
+    vector<Mat> X_vector;// 注意是_batchsize幅输入输出同时处理，所以不是一维向量，而是2D，维度为[列_batchsize, 行iChannel]
     // 只针对全连接层的输出，以及下一层为全连接层的非全连接层（比如LeNet的第二个降采样层）。其它层此参数无意义
 
     // 当前层的灵敏度(残差)，即当前层的输入（特别注意：此输入为紧接着进激活函数的那个输入，即加了乘性和加性偏置后的输入）对误差的偏导
@@ -92,7 +92,7 @@ typedef struct {
     // 注意只针对非全连接层
 
     // 当前层的灵敏度(残差)，即当前层的输入对误差的偏导
-    vector<vector<double>> Delta_vector;// 虽是一维向量，但是有_batchsize列，所以是二维的。
+    Mat Delta_vector;// 虽是一维向量，但是有_batchsize列，所以是二维的。
     // 注意只针对全连接层，以及下层为全连接层的降采样层、输入层、卷积层等有方块图输出的层
 
 } Layer;
@@ -160,7 +160,7 @@ private:
     double _err;
 
     // 神经网络的输出，就是最后一层网络的输出图
-    vector<vector<double>> _Y;// 注意是_batchsize幅输入输出同时处理，所以是2D，维度为[列_batchsize, 行iChannel（即10）]
+    vector<Mat> _Y;// 注意是_batchsize幅输入输出同时处理，所以是2D，维度为[列_batchsize, 行iChannel（即10）]
 };
 
 

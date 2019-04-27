@@ -148,6 +148,18 @@ vector<Mat> down_sample_max_pooling(const vector<Mat> &vector_matrix) {
 
 }
 
+vector<Mat> reshape2vector(const vector<Mat> &vector_matrix) {
+    int batch = vector_matrix.size();
+    int dim=pow(vector_matrix.at(0).cols,2);
+    vector<Mat> vector_vector;
+    Mat tmp;
+    for (int i = 0; i < batch; ++i) {
+        tmp=vector_matrix.at(i).reshape(0,dim);
+        vector_vector.push_back(tmp);
+    }
+    return vector_vector;
+}
+
 vector<double> soft_max(const vector<double> &vector) {
     int dim = vector.size();
     if (dim == 0) {
