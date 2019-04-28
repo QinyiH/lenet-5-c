@@ -13,6 +13,7 @@
 #include <iostream>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <numeric>
 
 using namespace std;
 using namespace cv;
@@ -25,6 +26,7 @@ typedef enum {
 // 类似matlab中的randperm函数，即得到0~num-1之间的打乱顺序后的数组
 void randperm_array(int serial_num[], int num);
 
+//用numeric求和
 Mat AverageImage(const vector<Mat> &ImageSet);
 
 void input_layer(vector<Mat> image_set,const Mat avg_image);

@@ -22,8 +22,8 @@ lenet::lenet(const vector<Layer> &layers, float alpha, float eta, int batchsize,
     // 依据网络结构设置lenet.layers, 初始化一个lenet网络
     init();
 
-    _ERR.assign(_epochs, 0);// 将历次迭代的均方误差初始化为0
-    _err = 0;// 将当前轮的当前批次的均方误差初始化为0
+    _ERR.assign(_epochs, 0);// 将历次迭代的交叉熵初始化为0
+    _err = 0;// 将当前轮的当前批次的交叉熵初始化为0
 
     cout << "lenet has initialised!" << endl;
 }
@@ -58,7 +58,7 @@ void lenet::train(const vector<Mat> &train_x, const vector<Mat> &train_y)
         // ********************************************************************************************* //
         // 对"训练集整体迭代一次"网络权值更新的次数做循环
 
-        double mse = 0;// 当次训练集整体迭代时的均方误差
+        double mse = 0;// 当次训练集整体迭代时的交叉熵
 
         // L:整体训练一次网络更新的次数,
         // 即：假设训练样本数为1000个，批处理数为10个，那整体训练一次就得1000/10=100次
@@ -100,7 +100,7 @@ void lenet::train(const vector<Mat> &train_x, const vector<Mat> &train_y)
         }
 
         mse /= numbatches;
-        _ERR.at(I) = mse; // 记录第I次训练集整体迭代时的均方误差
+        _ERR.at(I) = mse; // 记录第I次训练集整体迭代时的交叉熵
 
         // ********************************************************************************************* //
 
@@ -267,6 +267,7 @@ void lenet::init()
 
 
 // lenet网络,正向计算(批处理算法,核心是convn用法,和输出层批量映射)
+//TODO: convolution
 void lenet::feed_forward(const vector<Mat> &train_x)
 {
     // lenet网络层数
@@ -424,34 +425,39 @@ void lenet::back_propagation(const vector<Mat> &train_y)
     int n = _layers.size();
 
     // 输出误差: 预测值-期望值
-    vector<Mat> E = calc_error(_Y, train_y);
+    //损失函数用cross entropy
+    //计算softmax回传梯度
+    vector<Mat> soft_max_grad = calc_error(_Y, train_y);
 
     // 输出层灵敏度(残差)
     // 注意，这里需要说明下，这里对应的公式是 delta = (y - t).*f'(u),但是这里为什么是f'(x)呢？
     // 因为这里其实是sigmoid求导，f'(u) = x*(1-x)，所以输入的就是x了。
     // 其中，u表示当前层输入，x表示当前层输出。
     //But, 由于网络最后用的式softMax输出，所以以上都没用，嗯~ o(*￣▽￣*)o，对的。
-    //Softmax求导就是预测值与期望值的差
-
+    //损失函数用cross entropy
+    //Softmax和cross enropy求偏导结果就是预测值与期望值的差
+    //**************************useless********************************************************
     //_layers.at(n - 1).Delta_vector = E * derivation(_layers.at(n - 1).X_vector, _activation_func_type);
 
-    // loss_function是均方误差,已对样本数做平均
-    _err = 0.5 * E.pow(2).sum() / E.size();// 当前轮的当前批次的均方误差
-
+    // loss_function是交叉熵,已对样本数做平均
+    //_err = 0.5 * E.pow(2).sum() / E.size();// 当前轮的当前批次的交叉熵
+    //*****************************************************************************************
+    //TODO: 用交叉熵计算
+    _err=matsum();
     // ************** 灵敏度(残差)的反向传播 ******************************
 
-    int tmp;
-    if (_layers.at(1).type == 'f')
-    {
-        // 当第二层就是全连接层时,相当于输入图片拉成一个特征矢量形成的BP网络,
-        // 考虑到必须计算net.layers{1}.X_vector,所以L的下限必须到0
-        tmp = 0;
-    }
-    else
-    {
-        // 其它情况L下限是1就可以
-        tmp = 1;
-    }
+    int tmp = 1;
+    // if (_layers.at(1).type == 'f')
+    // {
+    //     // 当第二层就是全连接层时,相当于输入图片拉成一个特征矢量形成的BP网络,
+    //     // 考虑到必须计算net.layers{1}.X_vector,所以L的下限必须到0
+    //     tmp = 0;
+    // }
+    // else
+    // {
+    //     // 其它情况L下限是1就可以
+    //     tmp = 1;
+    // }
 
     for (int L = (n - 2); L >= tmp; L--)
     {

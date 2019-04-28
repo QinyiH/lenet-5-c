@@ -7,6 +7,8 @@
 using namespace std;
 using namespace cv;
 
+//TODO: 参与点乘的两个Mat矩阵的数据类型（type）只能是 CV_32F、 CV_64FC1、 CV_32FC2、 CV_64FC2 这4种类型中的一种。
+
 void randperm_array(int serial_num[], int num)
 {
     for (int i = 0; i < num; i++)
