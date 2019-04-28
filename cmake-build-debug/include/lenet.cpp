@@ -42,7 +42,8 @@ void lenet::train(const vector<Mat> &train_x, const vector<Mat> &train_y)
 
     int m = train_x.size();// 训练样本个数，比如1000个
     int numbatches = ceil(m / _batchsize);// "训练集整体迭代一次" 网络权值更新的次数，比如1000/10=100
-
+    Mat avg_image=AverageImage(train_x);
+    input_layer(train_x,avg_image);
     // 对训练集整体迭代次数做循环
     for (int I = 0; I < _epochs; I++)// 比如整体重复迭代25次
     {
@@ -429,7 +430,10 @@ void lenet::back_propagation(const vector<Mat> &train_y)
     // 注意，这里需要说明下，这里对应的公式是 delta = (y - t).*f'(u),但是这里为什么是f'(x)呢？
     // 因为这里其实是sigmoid求导，f'(u) = x*(1-x)，所以输入的就是x了。
     // 其中，u表示当前层输入，x表示当前层输出。
-    _layers.at(n - 1).Delta_vector = E * derivation(_layers.at(n - 1).X_vector, _activation_func_type);
+    //But, 由于网络最后用的式softMax输出，所以以上都没用，嗯~ o(*￣▽￣*)o，对的。
+    //Softmax求导就是预测值与期望值的差
+
+    //_layers.at(n - 1).Delta_vector = E * derivation(_layers.at(n - 1).X_vector, _activation_func_type);
 
     // loss_function是均方误差,已对样本数做平均
     _err = 0.5 * E.pow(2).sum() / E.size();// 当前轮的当前批次的均方误差

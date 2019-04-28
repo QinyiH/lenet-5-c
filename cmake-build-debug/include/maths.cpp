@@ -26,6 +26,31 @@ void randperm_array(int serial_num[], int num)
         serial_num[j] = temp;
     }
 }
+//TODO: 可能要修改一下精度
+Mat AverageImage(const vector<Mat> &ImageSet){
+    int Setsize=ImageSet.size();
+    if(Setsize==0){
+        cout<<"The ImageSet is empty."<<endl;
+        Mat tmp;
+        return tmp;
+    }
+    Mat image_avg, image_sum=Mat::zeros(28,28,CV_64FC1);
+    for (int i = 0; i < Setsize; i++)
+    {
+        image_sum=image_sum+ImageSet.at(i);
+    }
+    image_avg=image_sum/Setsize;
+    return image_avg;
+}
+
+void input_layer(vector<Mat> &image_set, const Mat avg_image){
+    int n=image_set.size();
+    for (int i = 0; i < n; i++)
+    {
+        image_set.at(i)=image_set.at(i)-avg_image;
+    }
+}
+
 
 vector<Mat> activation_function(const vector<Mat> &vector_array, activation_function_type activ_func_type) {
     int page = vector_array.size();

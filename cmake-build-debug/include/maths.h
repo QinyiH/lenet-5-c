@@ -25,6 +25,10 @@ typedef enum {
 // 类似matlab中的randperm函数，即得到0~num-1之间的打乱顺序后的数组
 void randperm_array(int serial_num[], int num);
 
+Mat AverageImage(const vector<Mat> &ImageSet);
+
+void input_layer(vector<Mat> image_set,const Mat avg_image);
+
 //矩阵的激活函数，用于conv
 vector<Mat> activation_function(const vector<Mat> &vector_array, activation_function_type activ_func_type);
 
