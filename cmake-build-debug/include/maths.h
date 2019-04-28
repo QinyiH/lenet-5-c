@@ -65,9 +65,14 @@ vector<Mat> up_sample_max_pooling(const vector<Mat> &vector_array3D);
 vector<Mat> reshape2vector(const vector<Mat>& vector_matrix);
 
 //full connector layer的计算
-vector<Mat> full_connect(const Mat& Weights,const vector<Mat>& vector_vector, const Mat& bias);
+// trans:是否转置
+vector<Mat> full_connect(const Mat& Weights,const vector<Mat>& vector_vector, const Mat& bias,bool trans);
 
 //计算误差
 vector<Mat> calc_error(const vector<Mat>& Y, const vector<Mat>& label);
+
+vector<Mat> matrix_dot(const vector<Mat> &matrix1,const vector<Mat> &matrix2);
+
+vector<Mat> derivation_fcl(const vector<Mat>& Delta_vector, const vector<Mat> &image_batch);
 
 #endif //LENET_MATHS_H

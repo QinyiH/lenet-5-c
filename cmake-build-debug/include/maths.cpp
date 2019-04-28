@@ -201,8 +201,18 @@ vector<Mat> calc_error(const vector<Mat> &Y, const vector<Mat> &label) {
     return batch_error;
 }
 
-vector<Mat> full_connect(const Mat &Weights, const vector<Mat> &vector_vector, const Mat &bias) {
-    return vector<Mat>();
+vector<Mat> full_connect(const Mat &Weights, const vector<Mat> &vector_vector, const Mat &bias,bool trans) {
+    vector<Mat> vector_a,vector_y;
+    int batch=vector_vector.size();
+    if(trans){
+        for (int i = 0; i < batch; ++i) {
+            vector_a.push_back(vector_vector.at(i).t());
+        }
+    }
+    else vector_a=vector_vector;
+    for (int j = 0; j < batch; ++j) {
+        vector_y.push_back(Weights*vector_a.at(j)+bias);
+    }
 }
 
 vector<double> soft_max(const vector<double> &vector) {
