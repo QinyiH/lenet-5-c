@@ -1,990 +1,423 @@
 # C++实现lenet-5
 
-为什么这里和上面的风格不一样？因为上面的是用`latex`写的，而这个是用`markdown`写的，
-毕竟我还是没写出来，只是把大概的框架写了一下。剩下的就是吐槽和一些看法。
+以下是未完成内容，主要介绍opencv和mat类的一些用法以及反向传播(前向计算不再赘述)。
 
-先上代码好了：
+全部代码在Github上，可能运行不了，应该说肯定运行不了。
 
-main.cpp
+https://github.com/WBAsn/lenet-5-c.git
+
+先说一下感想，以防下面的notes和code太长。。。
+
+为什么用c++呢？我以为用网络类会比写计算的过程要简洁和方便。(不过事实证明好像并非如此)，c++还有许多库可以使用(然而并没有用，并行计算的库都不会用)。写lenet的前向计算比反向迭代要简单一点，主要是在matlab上对forward已经有了较好的理解。
+
+opencv有些操作还是有点困难，在网上也找不到资料，比如矩阵中取消矩阵，取出矩阵中最大元素和位置(位置在反向传播中有用到)。
+
+一开始想用caffe来写的，不过还是不会用，只是照着教程在linux下训练了一遍。
+
+<img src="2.png" width="50%" height="50%">
+
+<img src="6.png" width="60%" height="50%">
+
+<img src="4.png" width="80%" height="50%">
+
+## opencv数据类型
+
+`CV_<bit_depth>(S|U|F)C<number_of_channels>`
+
+```
+1--bit_depth---比特数---代表8bite,16bites,32bites,64bites---举个例子吧--比如说,如
+        如果你现在创建了一个存储--灰度图片的Mat对象,这个图像的大小为宽100,高100,那么,现在这张
+        灰度图片中有10000个像素点，它每一个像素点在内存空间所占的空间大小是8bite,8位--所以它对
+        应的就是CV_8
+     2--S|U|F--S--代表---signed int---有符号整形
+               U--代表--unsigned int--无符号整形
+               F--代表--float---------单精度浮点型
+     3--C<number_of_channels>----代表---一张图片的通道数,比如:
+         1--灰度图片--grayImg---是--单通道图像
+         2--RGB彩色图像---------是--3通道图像
+         3--带Alph通道的RGB图像--是--4通道图像
+```
+
+## Opencv
+
+### Mat类
+
+#### 简介
+
+> Mat本质上是由两个数据部分组成的类： （包含信息有矩阵的大小，用于存储的方法，矩阵存储的地址等） 的矩阵头和一个指针，指向包含了像素值的矩阵（可根据选择用于存储的方法采用任何维度存储数据）。矩阵头部的大小是恒定的。然而，矩阵本身的大小因图像的不同而不同，通常是较大的数量级。
+
+OpenCV 使用引用计数系统。其思想是Mat的每个对象具有其自己的头，但可能他们通过让他们矩阵指针指向同一地址的两个实例之间共享该矩阵。此外，拷贝运算符将只能复制矩阵头部，也还将复制指针到大型矩阵，但不是矩阵本身。
+
+#### 存储方法
+
+这是关于你是如何存储的像素值。您可以选择的颜色空间和使用的数据类型。色彩空间是指我们如何结合为了代码指定的颜色的颜色分量。
+
+- RGB 是最常见的是我们的眼睛使用类似的事情，我们显示系统还撰写使用这些颜色。
+- YCrCb 使用流行的 JPEG 图像格式。
+- CIE L *b*a 是均匀颜色空间，它是非常方便的如果您需要测量给定的颜色，以另一种颜色的距离。
+- 灰度
+
+#### 显示创建Mat对象
+
+##### Mat()构造函数
+
 ```cpp
-#include <iostream>
-#include "cmake-build-debug/include/data.h"
-#include "cmake-build-debug/include/maths.h"
-#include "cmake-build-debug/include/lenet.h"
+Mat M(2,2, CV_8UC3, Scalar(0,0,255));
+```
+对于二维的和多通道的图像，我们首先定义它们的大小：按行和列计数。然后我们需要指定的数据类型，用于存储元素和每个矩阵点通道的数量。为此，我们根据以下的约定可以作出多个定义：
 
-using namespace std;
-using namespace cv;
+`CV_ [每一项的位数] [有符号或无符号] [类型前缀] C [通道数]`
 
-int main() {
-    string file_addr = "/home/assassin/dataset/MNIST";
-    vector<Mat> train_imageset, test_imageset;
-    vector<Mat> train_labelSet, test_labelSet;
-    create_database(file_addr, train_imageset, test_imageset, train_labelSet, test_labelSet);
-    cout << "train数据集总数：" << train_labelSet.size() << endl;
-    cout << "test数据集总数：" << test_labelSet.size() << endl;
+Scalar 是四个元素短向量。指定此和可以初始化所有矩阵点与自定义的值。
 
-    //***********************lenet 初始化***********************************//
-    // CNN网络结构设置
-    vector<Layer> layers;
+##### 使用 C\C++ 数组和通过构造函数来初始化
 
-    Layer input_layer_1;// 第一层：输入层
-    input_layer_1.type = 'i';
-    input_layer_1.iChannel = 1;
-    input_layer_1.iSizePic[0] = 28;
-    input_layer_1.iSizePic[1] = 28;
-    layers.push_back(input_layer_1);
+```cpp
+int sz[3] = {2,2,2};
+Mat L(3,sz,CV_8UC(1),Scalar::all(0));
+```
 
-    Layer convolutional_layer_2;// 第二层：卷积层
-    convolutional_layer_2.type = 'c';
-    convolutional_layer_2.iChannel = 2;
-    convolutional_layer_2.iSizeKer = 5;
-    convolutional_layer_2.padding = 2;
-    convolutional_layer_2.activationfunction_type = ReLU;
-    layers.push_back(convolutional_layer_2);
+##### 为一个已经存在的IplImage创建一个头：
 
-    Layer subsampling_layer_3;// 第三层：降采样层
-    subsampling_layer_3.type = 's';
-    layers.push_back(subsampling_layer_3);
+```cpp
+IplImage* img = cvLoadImage("greatwave.png", 1);
+Mat mtx(img); // 转换 IplImage*-> Mat
+```
 
-    Layer convolutional_layer_4;// 第四层：卷积层
-    convolutional_layer_4.type = 'c';
-    convolutional_layer_4.iChannel = 4;
-    convolutional_layer_4.iSizeKer = 5;
-    convolutional_layer_4.activationfunction_type = ReLU;
-    layers.push_back(convolutional_layer_4);
+##### Create()函数
 
-    Layer subsampling_layer_5;// 第五层：降采样层
-    subsampling_layer_5.type = 's';
-    layers.push_back(subsampling_layer_5);
+```cpp
+M.create(4,4, CV_8UC(2));
+cout << "M = "<< endl << " " << M << endl << endl;
+```
 
-    Layer fully_connected_layer_6;// 第六层：全连接层
-    fully_connected_layer_6.type = 'f';
-    fully_connected_layer_6.iChannel = 120;
-    fully_connected_layer_6.activationfunction_type = ReLU;
-    layers.push_back(fully_connected_layer_6);
+##### MATLAB风格的初始化函数：zeros()， ones()，eyes().指定使用的尺寸和数据类型
 
-    Layer fully_connected_layer_7;// 第七层：全连接层
-    fully_connected_layer_7.type = 'f';
-    fully_connected_layer_7.iChannel = 84;
-    layers.push_back(fully_connected_layer_7);
+```cpp
+Mat E = Mat::eye(4, 4, CV_64F);
+cout << "E = " << endl << " " << E << endl << endl;
+Mat O = Mat::ones(2, 2, CV_32F);
+cout << "O = " << endl << " " << O << endl << endl;
+Mat Z = Mat::zeros(3,3, CV_8UC1);
+cout << "Z = " << endl << " " << Z << endl << endl;
+```
 
-    Layer fully_connected_layer_8;// 第八层：全连接层（输出层）
-    fully_connected_layer_8.type = 'f';
-    fully_connected_layer_8.iChannel = 10;
-    fully_connected_layer_8.activationfunction_type = SoftMax;
-    layers.push_back(fully_connected_layer_8);
+##### 对于小的矩阵来说你可以使用逗号隔开的初始化函数：
 
-    // 定义初始化参数
-    double alpha = 2;// 学习率[0.1,3]
-    double eta = 0.5f;// 惯性系数[0,0.95], >=1不收敛，==0为不用惯性项
-    int batchsize = 10;// 每次用batchsize个样本计算一个delta调整一次权值，每十个样本做平均进行调节
-    int epochs = 25;// 训练集整体迭代次数
-    //down_sample_type down_samp_type = MaxPooling;// 降采样（池化）类型
+```cpp
+Mat C = (Mat_<double>(3,3) << 0, -1, 0, -1, 5, -1, 0, -1, 0);
+cout << "C = " << endl << " " << C << endl << endl;
+```
 
-    // 依据网络结构设置CNN.layers，初始化一个CNN网络
-    lenet LeNet(layers, alpha, eta, batchsize, epochs);
-    //****************************************************************************************//
+##### 为一个已有的Mat对象创建一个新的头然后clone()或者copyTo()这个头
 
-    return 0;
+```cpp
+Mat RowClone = C.row(1).clone();
+cout << "RowClone = " << endl << " " << RowClone << endl << endl;
+```
+
+#### 成员函数
+
+##### Mat::operator =：提供矩阵赋值操作。
+
+> C++: Mat& Mat::operator=(const Mat& m)
+> C++: Mat& Mat::operator=(const MatExpr_Base& expr)
+> C++: Mat& Mat::operator=(const Scalar& s)
+
+> 参数：
+> **m** – 被赋值的右侧的矩阵。 矩阵的赋值是一个复杂度为O(1) 的操作。 这就意味着没有数据段复制并且有数量的递增两矩阵将使用同一引用计数器。在给矩阵赋新数据之前先由Mat::release()释放引用。
+> **expr** –被赋值的矩阵表达式对象。 作为第一种赋值方式的逆操作第二种形式可以被重新用到具有适当大小和尺寸的已分配空间的矩阵上以适应表达式的结果。矩阵表达式扩展得到的实函数将自动处理这个分配过程。例如：
+> C=A+B 扩展成add(A, B, C) , andadd() 要当心C重新分配数据的操作。.
+> **s** – 标量赋值给每一个矩阵元，矩阵的大小和类型将不会改变。有现成的赋值运算符。由于他们各不相同请阅读运算符参数说明。
+
+#### 元素的获取与赋值
+
+##### Mat::at()
+
+用于获取图像矩阵某点的值或改变某点的值。
+
+---
+
+cv::Mat中，
+
+cols代表图像的宽度（图像的列数），
+
+rows代表图像的高度（图像的行数），
+
+step代表以字节为单位的图像的有效宽度，
+
+elemSize返回像素的大小，
+
+channels（）方法返回图像的通道数，
+
+total函数返回图像的像素数。
+
+像素的大小 = 颜色大小（字节）*通道数
+
+---
+
+##### ptr<>()
+
+cv::Mat中提供ptr函数访问任意一行像素的首地址，特别方便图像的一行一行的横向访问，如果需要一列一列的纵向访问图像，就稍微麻烦一点。但是ptr访问效率比较高，程序也比较安全，有越界判断。
+
+```cpp
+int nl = image.rows; //行数  
+int nc = image.cols * image.channels();
+for (int j = 0; j<nl; j++)
+{
+	uchar* data = image.ptr<uchar>(j);
+	for (int i = 0; i<nc; i++)
+	{
+		data[i] = data[i] / div*div + div / 2;
+	}
 }
 ```
 
+##### 迭代器
+
+cv::Mat同样有标准模板库（STL），可以使用迭代器访问数据。
+
+用迭代器来遍历图像像素，可简化过程降低出错的机会，比较安全，不过效率较低；如果想避免修改输入图像实例cv::Mat，可采用const_iterator。iterator有两种调用方法，cv::MatIterator_<cv::Vec3b>it;cv::Mat_<cv::Vec3b>::iterator it;中间cv::Vec3b是因为图像是彩色图像，3通道，cv::Vec3b可以代表一个像素。
+
+
+使用at函数时，**应该知道矩阵元素的类型和通道数，根据矩阵元素类型和通道数来确定at函数传递的类型,使用的是Vec3b这个元素类型，他是一个包含3个unsigned char类型向量。**之所以采用这个类型来接受at的返回值，是因为，我们的矩阵im是3通道，类型为unsigned char类型
+
+#### 矩阵运算
+
+##### dot——A.dot(B)
+
+1. 对两个向量执行点乘运算，就是对这两个向量对应位一一相乘之后求和的操作，点**乘的结果是一个标量**。 
+2. dot方法声明中显示返回值是double，所以**A.dot(B)结果是一个double类型数据，不是Mat矩阵**，不能把A.dot(B)结果赋值给Mat矩阵！
+
+##### mul——A.mul(B)
+
+mul会计算两个Mat矩阵对应位的乘积，所以要求参与运算的矩阵A的行列和B的行列数一致。计算结果是跟A或B行列数一致的一个Mat矩阵。
+
+1. mul操作不对参与运算的两个矩阵A、B有数据类型上的要求，但要求A，B类型一致，不然报错；
+2. Mat AB=A.mul(B)，**若声明AB时没有定义AB的数据类型，则默认AB的数据类型跟A和B保存一致**；
+3. 若AB精度不够，可能产生溢出，溢出的值被置为当前精度下的最大值；
+
+##### line
+
+绘制直线
+
 ```cpp
-//
-// Created by assassin on 19-4-27.
-//
-
-#ifndef LENET_LENET_H
-#define LENET_LENET_H
-
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/core/core.hpp>
-#include <iostream>
-#include <vector>
-#include <string>
-#include <maths.h>
-
-using namespace std;
-using namespace cv;
-
-typedef struct {
-    // 当前层的类别
-    char type;// 输入层：i；卷积层：c；降采样层：s；全连接层：f
-
-    // 当前层用的激活函数
-    activation_function_type activationfunction_type;
-
-    // 当前层的通道数目
-    int iChannel;
-
-    // 降采样率
-    //int iSample;// 只针对降采样层，其它层此参数无意义
-
-    // 当前层的输入图片大小
-    int iSizePic[2];
-
-    // 当前层的卷积核大小[row col]
-    int iSizeKer;// 只针对卷积层，其它层此参数无意义
-
-    // 当前层是否填充
-    int padding;// 只针对卷积层
-
-    // 当前层的输出（非全连接层输出，全连接层输出为X_vector）
-    vector<vector<Mat>> X;// 注意是_batchsize幅输入输出同时处理，所以不是2D，而是3D，维度为[_batchsize, iSizePic[0], iSizePic[1]]
-
-    // 前一层通道对当前层通道的卷积核
-    vector<vector<Mat>> Ker;// Ker[I][J], I为前一层通道数，J为当前层通道数。只针对卷积层，其它层此参数无意义
-
-    // 前一层通道对当前层通道的卷积核的偏置
-    vector<vector<Mat>> Ker_delta;// Ker_delta[I][J], I为前一层通道数，J为当前层通道数。只针对卷积层，其它层此参数无意义
-
-    // 前一层通道对当前层通道的卷积核的梯度
-    vector<vector<Mat>> Ker_grad;// Ker_grad[I][J], I为前一层通道数，J为当前层通道数。只针对卷积层，其它层此参数无意义
-
-    // 当前层与上一层的连接权值
-    Mat W;// 只针对全连接层，其它层此参数无意义
-    // 注意是W[I列][J行],I为当前层全连接输入个数（上一层的数目），J为当前层数目
-    // 比如第7层，就是W[84行x120列]
-
-    // ？？？
-    Mat W_delta;// 只针对全连接层，其它层此参数无意义
-    // 注意是W[I列][J行],I为当前层全连接输入个数（上一层的数目），J为当前层数目
-
-    // 当前层与上一层的连接权值的梯度
-    Mat W_grad;// 只针对全连接层，其它层此参数无意义
-    // 注意是W[I列][J行],I为当前层全连接输入个数（上一层的数目），J为当前层数目
-    // 比如第7层，就是W[84行x120列]
-
-    // 当前层输出通道的加性偏置
-    Mat B;
-
-    // 当前层输出通道的加性偏置的更新量
-    Mat B_delta;
-
-    // 当前层输出通道的加性偏置的梯度
-    Mat B_grad;
-
-    // 当前层输出通道的乘性偏置
-    //vector<double> Beta;// 只针对下采样层，其它层此参数无意义
-
-    // 当前层输出通道的乘性偏置的更新量
-    //vector<double> Beta_delta;// 只针对下采样层，其它层此参数无意义
-
-    // 当前层输出通道的乘性偏置的梯度
-    //vector<double> Beta_grad;// 只针对下采样层，其它层此参数无意义
-
-    // 下采样的输入
-    vector<Mat> X_down;// 注意是_batchsize幅输入输出同时处理，所以不是2D，而是3D，维度为[列_batchsize, 行iChannel*iSizePic[0]*iSizePic[1]]
-    // 只针对下采样层，其它层此参数无意义
-
-    // 全连接层的输出，或者下一层为全连接层的当前层所有输出图组合成的一个向量
-    vector<Mat> X_vector;// 注意是_batchsize幅输入输出同时处理，所以不是一维向量，而是2D，维度为[列_batchsize, 行iChannel]
-    // 只针对全连接层的输出，以及下一层为全连接层的非全连接层（比如LeNet的第二个降采样层）。其它层此参数无意义
-
-    // 当前层的灵敏度(残差)，即当前层的输入（特别注意：此输入为紧接着进激活函数的那个输入，即加了乘性和加性偏置后的输入）对误差的偏导
-    vector<Mat> Delta;// 注意是_batchsize幅输入输出同时处理，所以不是2D，而是3D，维度为[_batchsize, iSizePic[0], iSizePic[1]]
-    // 注意只针对非全连接层
-
-    // 当前层的灵敏度(残差)，即当前层的输入对误差的偏导
-    vector<Mat> Delta_vector;// 虽是一维向量，但是有_batchsize列，所以是二维的。
-    // 注意只针对全连接层，以及下层为全连接层的降采样层、输入层、卷积层等有方块图输出的层
-
-} Layer;
-
-class lenet {
-public:
-
-    // 初始化lenet网络
-    lenet(const vector<Layer> &layers, float alpha, float eta, int batchsize, int epochs);//down_sample_type down_samp_type
-
-    // CNN网络，训练
-    void train(const vector<Mat> &train_x, const vector<Mat> &train_y);
-
-    // CNN网络，测试，返回错误率
-    double test(const vector<Mat> &test_x, const vector<Mat> &test_y);
-
-
-    ////////////////////// 非主要函数 /////////////////////////////////////////////
-
-    // 返回迭代次数
-    int get_epochs() { return _epochs; }
-
-    // 返回历次迭代的均方误差
-    vector<double> get_ERR() { return _ERR; }
-
-private:
-
-    // 依据网络结构设置CNN.layers, 初始化一个CNN网络
-    void init();
-
-    // CNN网络，正向计算(批处理算法,核心是convn用法,和输出层批量映射)
-    void feed_forward(const vector<Mat> &train_image);
-
-    // CNN网络，反向传播(批处理算法)
-    void back_propagation(const vector<Mat> &train_label);
-
-    // CNN网络，卷积层和输出层的权值更新(附加惯性项)
-    void update(void);
-
-    vector<Layer> _layers;
-
-    // 学习率[0.1,3]
-    double _alpha;
-
-    // 惯性系数[0,0.95], >=1不收敛，==0为不用惯性项
-    double _eta;
-
-    // 每次用batchsize个样本计算一个delta调整一次权值，每十个样本做平均进行调节
-    int _batchsize;
-
-    // 训练集整体迭代次数
-    int _epochs;
-
-    // 激活函数类型
-    activation_function_type _activation_func_type;
-
-    // 降采样（池化）类型
-    //down_sample_type _down_sample_type;
-
-    // 历次迭代的均方误差
-    vector<double> _ERR;
-
-    // 当前轮的当前批次的均方误差
-    double _err;
-
-    // 神经网络的输出，就是最后一层网络的输出图
-    vector<Mat> _Y;// 注意是_batchsize幅输入输出同时处理，所以是2D，维度为[列_batchsize, 行iChannel（即10）]
-};
-
-
-#endif //LENET_LENET_H
-
+#include<opencv2/opencv.hpp>
+cv::line(src,Point(1,1),Point(250,250),Scalar(0,0,255),5,CV_AA);
 ```
 
-lenet.cpp
-```cpp
-//
-// Created by assassin on 19-4-27.
-//
-
-#include "lenet.h"
-#include "maths.h"
-#include <time.h>
-#include <iostream>
-
-
-using namespace std;
-
-
-// 初始化lenet类
-lenet::lenet(const vector<Layer> &layers, float alpha, float eta, int batchsize, int epochs) //down_sample_type down_samp_type
-        :_layers(layers),
-         _alpha(alpha),
-         _eta(eta),
-         _batchsize(batchsize),
-         _epochs(epochs)
-{
-    // 依据网络结构设置lenet.layers, 初始化一个lenet网络
-    init();
-
-    _ERR.assign(_epochs, 0);// 将历次迭代的交叉熵初始化为0
-    _err = 0;// 将当前轮的当前批次的交叉熵初始化为0
-
-    cout << "lenet has initialised!" << endl;
-}
-
-
-// lenet网络，训练
-void lenet::train(const vector<Mat> &train_x, const vector<Mat> &train_y)
-{
-    cout << "begin to train" << endl;
-
-    if (train_x.size() != train_y.size())
-    {
-        cout << "train_x size is not same as train_y size!" << endl << "lenet.train() failed!" << endl;
-        return;
-    }
-
-    int m = train_x.size();// 训练样本个数，比如1000个
-    int numbatches = ceil(m / _batchsize);// "训练集整体迭代一次" 网络权值更新的次数，比如1000/10=100
-    Mat avg_image=AverageImage(train_x);
-    input_layer(train_x,avg_image);
-    // 对训练集整体迭代次数做循环
-    for (int I = 0; I < _epochs; I++)// 比如整体重复迭代25次
-    {
-        // 显示进度
-        cout << "epoch " << I+1 << "/" << _epochs << endl;
-
-        clock_t tic = clock(); //获取毫秒级数目
-
-        // 打乱训练样本顺序，实现洗牌的功能
-        const vector<int> kk = randperm_vector(m);
-
-        // ********************************************************************************************* //
-        // 对"训练集整体迭代一次"网络权值更新的次数做循环
-
-        double mse = 0;// 当次训练集整体迭代时的交叉熵
-
-        // L:整体训练一次网络更新的次数,
-        // 即：假设训练样本数为1000个，批处理数为10个，那整体训练一次就得1000/10=100次
-        for (int L = 0; L < numbatches; L++)
-        {
-            // 取出打乱顺序后的batchsize个样本和对应的标签
-            vector<Mat> batch_train_x;
-            vector<Mat> batch_train_y;
-
-            for (int i = L*_batchsize; i < min((L + 1)*_batchsize, m); i++)// (L+1)*_batchsize在最后一次循环中可能会大于m
-            {
-                batch_train_x.push_back(train_x.at(kk.at(i)));
-                batch_train_y.push_back(train_y.at(kk.at(i)));
-            }
-            // 显示当前正在处理的批量图片（只显示10张，当批处理图片的数量小于10时会报错，这时需要修改显示的张数）
-            //string window_title = "Images from " + to_string(L*_batchsize) + " to " + to_string(min((L + 1)*_batchsize, m));
-            //batch_train_x.show_specified_images_64FC1(window_title, CvSize(5, 2), CvSize(32, 32), 150);
-
-            // 在当前的网络权值和网络输入下计算网络的输出(正向计算)
-            clock_t tic_ff = clock();
-            feed_forward(batch_train_x);
-            clock_t toc_ff = clock();
-            cout << "                          batches " << L+1 << " feedforward time: " << (double)(toc_ff - tic_ff) / 1000 << " seconds" << endl;
-
-            // 得到上面的网络输出后，通过对应的样本标签用bp算法来得到误差对网络权值(反向传播) 的导数
-            clock_t tic_bp = clock();
-            //TODO 改写bp
-            back_propagation(batch_train_y);
-            clock_t toc_bp = clock();
-            cout << "                          batches " << L + 1 << " back propagation time: " << (double)(toc_bp - tic_bp) / 1000 << " seconds" << endl;
-
-            // 得到误差对权值的导数后，就通过权值更新方法去更新权值
-            clock_t tic_update = clock();
-            update();
-            clock_t toc_update = clock();
-            cout << "                          batches " << L + 1 << " grade update time: " << (double)(toc_update - tic_update) / 1000 << " seconds" << endl;
-
-            mse += _err;
-        }
+## 训练结束后需要保存的内容
+
+1. layer_neuron_num，各层神经元数目，这是生成神经网络需要的唯一参数。
+2. weights，神经网络初始化之后需要用训练好的权值矩阵去初始化权值。
+3. activation_function，使用神经网络的过程其实就是前向计算的过程，显然需要知道激活函数是什么。lenet中默认ReLU。
+4. learning_rate，如果要在现有模型的基础上继续训练以得到更好的模型，更新权值的时候需要用到这个函数。
+
+## DNN的反向传播算法
+
+在DNN中，是首先计算出输出层的$δ^L$:
+$$
+\delta^{L}=\frac{\partial J(W, b)}{\partial z^{L}}=\frac{\partial J(W, b)}{\partial a^{L}} \odot \sigma^{\prime}\left(z^{L}\right)
+$$
+利用数学归纳法，用$δ^{l+1}$的值一步步的向前求出第l层的$δ^l$，表达式为：
+$$
+\delta^{l}=\delta^{l+1} \frac{\partial z^{l+1}}{\partial z^{l}}=\left(W^{l+1}\right)^{T} \delta^{l+1} \odot \sigma^{\prime}\left(z^{l}\right)
+$$
+有了$δ^l$的表达式，从而求出W,b的梯度表达式：
+$$
+\begin{array}{c}{\frac{\partial J(W, b)}{\partial W^{l}}=\frac{\partial J(W, b, x, y)}{\partial z^{l}} \frac{\partial z^{l}}{\partial W^{l}}=\delta^{l}\left(a^{l-1}\right)^{T}} \\ {\frac{\partial J(W, b, x, y)}{\partial b^{L}}=\frac{\partial J(W, b)}{\partial z^{l}} \frac{\partial z^{l}}{\partial b^{l}}=\delta^{l}}\end{array}
+$$
+
+## CNN的反向传播算法
+
+### DNN->CNN
+
+问题：
+
+1. 池化层没有激活函数，这个问题倒比较好解决，可以令池化层的激活函数为$σ(z)=z$，即激活后就是自己本身。这样池化层激活函数的导数为1.
+2. 池化层在前向传播的时候，对输入进行了压缩，那么现在需要向前反向推导$δ^{l−1}$，这个推导方法和DNN完全不同。
+3. 卷积层是通过张量卷积，或者说若干个矩阵卷积求和而得的当前层的输出，这和DNN很不相同，DNN的全连接层是直接进行矩阵乘法得到当前层的输出。这样在卷积层反向传播的时候，上一层的$δ^{l−1}$递推计算方法肯定有所不同。
+4. 对于卷积层，由于$W$使用的运算是卷积，那么从$δ^l$推导出该层的所有卷积核的$W,b$的方式也不同。
+
+由于卷积层可以有多个卷积核，各个卷积核的处理方法是完全相同且独立的，为了简化算法公式的复杂度，下面提到卷积核都是卷积层中若干卷积核中的一个。
+
+### 1. 已知池化层的$δ^l$，推导上一隐藏层的$δ^{l−1}$
+
+在前向传播算法时，池化层一般会用`MAX`或者`Average`对输入进行池化，池化的区域大小已知。现在反过来，要从缩小后的误差$δ^l$，还原前一次较大区域对应的误差。
+
+在反向传播时，首先会把δl的所有子矩阵矩阵大小还原成池化之前的大小，然后如果是MAX，则把$δ^l$的所有子矩阵的各个池化局域的值放在之前做前向传播算法得到最大值的位置。如果是Average，则把$δ^l$的所有子矩阵的各个池化局域的值取平均后放在还原后的子矩阵位置。这个过程一般叫做**upsample**。
+
+---
+
+#### Example
+
+假设的池化区域大小是2x2。$δ^l$的第k个子矩阵为:
+$$
+\delta_{k}^{l}=\left( \begin{array}{ll}{2} & {8} \\ {4} & {6}\end{array}\right)
+$$
+由于池化区域为2x2，先将$\delta_{k}^{l}$做还原，即变成：
+$$
+\left( \begin{array}{ll}{0} & {0}&{0}&{0}\\{0}&{2} & {8} & {0}\\{0} & {4} & {6}&{0}\\{0} & {0}&{0}&{0}\end{array}\right)
+$$
+如果是MAX，假设之前在前向传播时记录的最大值位置分别是左上，右下，右上，左下，则转换后的矩阵为：
+$$
+\left( \begin{array}{llll}{2} & {0} & {0} & {0} \\ {0} & {0} & {0} & {8} \\ {0} & {4} & {0} & {0} \\ {0} & {0} & {6} & {0}\end{array}\right)
+$$
+如果是Average，则进行平均：转换后的矩阵为：
+$$
+\left( \begin{array}{cccc}{0.5} & {0.5} & {2} & {2} \\ {0.5} & {0.5} & {2} & {2} \\ {1} & {1} & {1.5} & {1.5} \\ {1} & {1} & {1.5} & {1.5}\end{array}\right)
+$$
+即得到上一层$\frac{\partial J(W, b)}{\partial a_{k}^{l-1}}$的值，要得到$\delta_{k}^{l-1}$:
+$$
+\delta_{k}^{l-1}=\frac{\partial J(W, b)}{\partial a_{k}^{l-1}} \frac{\partial a_{k}^{l-1}}{\partial z_{k}^{l-1}}=u p s a m p l e\left(\delta_{k}^{l}\right) \odot \sigma^{\prime}\left(z_{k}^{l-1}\right)
+$$
+upsample函数完成了池化误差矩阵放大与误差重新分配的逻辑。
+
+---
+
+对于张量$δ^{l−1}$，有：
+$$
+\delta^{l-1}=u p s a m p l e\left(\delta^{l}\right) \odot \sigma^{\prime}\left(z^{l-1}\right)
+$$
+
+### 2. 已知卷积层的$δ^l$，推导上一隐藏层的$δ^{l−1}$
+
+卷积层的前向传播公式：
+$$
+a^{l}=\sigma\left(z^{l}\right)=\sigma\left(a^{l-1} * W^{l}+b^{l}\right)
+$$
+在DNN中，$δ^{l−1}$和$δ^l$的递推关系为：
+$$
+\delta^{l}=\frac{\partial J(W, b)}{\partial z^{l}}=\frac{\partial J(W, b)}{\partial z^{l+1}} \frac{\partial z^{l+1}}{\partial z^{l}}=\delta^{l+1} \frac{\partial z^{l+1}}{\partial z^{l}}
+$$
+因此要推导出$δ^{l−1}$和$δ^l$的递推关系，必须计算$\frac{∂z^l}{∂z^{l−1}}$的梯度表达式。
+
+注意到$z^l$和$z^{l−1}$的关系为：
+$$
+z^{l}=a^{l-1} * W^{l}+b^{l}=\sigma\left(z^{l-1}\right) * W^{l}+b^{l}
+$$
+因此有：
+$$
+\delta^{l-1}=\delta^{l} \frac{\partial z^{l}}{\partial z^{l-1}}=\delta^{l} * \operatorname{rot} 180\left(W^{l}\right) \odot \sigma^{\prime}\left(z^{l-1}\right)
+$$
+对于含有卷积的式子求导时，卷积核被旋转了180度。
+
+---
+
+#### Example
+
+假设$l−1$层的输出$a^{l−1}$是一个3x3矩阵，第l层的卷积核$W^l$是一个2x2矩阵，采用1像素的步幅，则输出$z^l$是一个2x2的矩阵。简化$b^l$都是0,则有
+$$
+a^{l−1}∗W^l=z^l
+$$
+列出$a,W,z$的矩阵表达式如下：
+$$
+\left( \begin{array}{lll}{a_{11}} & {a_{12}} & {a_{13}} \\ {a_{21}} & {a_{22}} & {a_{23}} \\ {a_{31}} & {a_{32}} & {a_{33}}\end{array}\right) * \left( \begin{array}{ll}{w_{11}} & {w_{12}} \\ {w_{21}} & {w_{22}}\end{array}\right)=\left( \begin{array}{cc}{z_{11}} & {z_{12}} \\ {z_{21}} & {z_{22}}\end{array}\right)
+$$
+得到：
+$$
+\begin{array}{l}{z_{11}=a_{11} w_{11}+a_{12} w_{12}+a_{21} w_{21}+a_{22} w_{22}} \\ {z_{12}=a_{12} w_{11}+a_{13} w_{12}+a_{22} w_{21}+a_{23} w_{22}} \\ {z_{21}=a_{21} w_{11}+a_{22} w_{12}+a_{31} w_{21}+a_{32} w_{22}} \\ {z_{22}=a_{22} w_{11}+a_{23} w_{12}+a_{32} w_{21}+a_{33} w_{22}}\end{array}
+$$
 
-        mse /= numbatches;
-        _ERR.at(I) = mse; // 记录第I次训练集整体迭代时的交叉熵
+模拟反向求导：
+$$
+\nabla a^{l-1}=\frac{\partial J(W, b)}{\partial a^{l-1}}=\frac{\partial J(W, b)}{\partial z^{l}} \frac{\partial z^{l}}{\partial a^{l-1}}=\delta^{l} \frac{\partial z^{l}}{\partial a^{l-1}}
+$$
+对于$a^{l-1}$的梯度误差$\nabla a^{l-1}$，等于第l层的梯度误差乘以$\frac{\partial z^{l}}{\partial a^{l-1}}$，而$\frac{\partial z^{l}}{\partial a^{l-1}}$对应上面的例子中相关联的$w$的值。假设$z$矩阵对应的反向传播误差是$δ_{11},δ_{12},δ_{21},δ_{22}$组成的2x2矩阵，则利用上面梯度的式子和4个等式，可以分别写出$∇a^{l−1}$的9个标量的梯度。
 
-        // ********************************************************************************************* //
+用矩阵卷积的形式：
+$$
+\left( \begin{array}{cccc}{0} & {0} & {0} & {0} \\ {0} & {\delta_{11}} & {\delta_{12}} & {0} \\ {0} & {\delta_{21}} & {\delta_{22}} & {0} \\ {0} & {0} & {0} & {0}\end{array}\right) * \left( \begin{array}{cc}{w_{22}} & {w_{21}} \\ {w_{12}} & {w_{11}}\end{array}\right)=\left( \begin{array}{ccc}{\nabla a_{11}} & {\nabla a_{12}} & {\nabla a_{13}} \\ {\nabla a_{21}} & {\nabla a_{22}} & {\nabla a_{23}} \\ {\nabla a_{31}} & {\nabla a_{32}} & {\nabla a_{33}}\end{array}\right)
+$$
+为了符合梯度计算，我们在误差矩阵周围填充了一圈0，此时我们将卷积核翻转后和反向传播的梯度误差进行卷积，就得到了前一次的梯度误差。这个例子直观的介绍了为什么对含有卷积的式子反向传播时，卷积核要翻转180度的原因。
 
-        clock_t toc = clock(); //获取毫秒级数目
-        cout << "epochs " << I+1 << " time has elapsed: " << (double)(toc - tic) / 1000 << " seconds" << endl;
-    }
-    //*/
-    cout << "train has finished!" << endl;
-}
-
-
-// lenet网络，测试，返回错误率
-double lenet::test(const vector<Mat> &test_x, const vector<Mat> &test_y)
-{
-    cout << "begin to test" << endl;
-
-    feed_forward(test_x);
-
-    // 得到预测值
-    //TODO: 找最大值
-    vector<int> h = find_max(_Y);
-
-    vector<int> a = find_max(test_y);
-
-    vector<int> bad = find(h - a);
-
-    double er = (double)bad.size() / (double)test_y.size();
-
-    return er;
-}
-
-
-// 依据网络结构设置lenet.layers, 初始化一个lenet网络
-void lenet::init()
-{
-    // lenet网络层数
-    int n = _layers.size();
-    RNG rnger(cv::getTickCount());
-    Mat weights;
-    Scalar mm, ss;
-
-    cout << "input layer " << 1 << " has initialised!" << endl;
-
-    // 对lenet网络层数做循环
-    for (int L = 1; L < n; L++)// 注意:这里实际上可以从第2层开始，所以L初始值是1不是0
-    {
-        // ======================================================================
-        // 以下代码仅对第2, 4层(卷积层)有效
-
-        if (_layers.at(L).type == 'c')
-        {
-            // 由前一层图像行列数,和本层卷积核尺度,计算本层图像行列数,二维向量
-            _layers.at(L).iSizePic[0] = _layers.at(L - 1).iSizePic[0] - _layers.at(L).iSizeKer + 1;
-            _layers.at(L).iSizePic[1] = _layers.at(L - 1).iSizePic[1] - _layers.at(L).iSizeKer + 1;
-
-            // "前一层任意一个通道", 对应"本层所有通道"卷积核权值W(可训练参数)个数, 不包括加性偏置
-            int fan_out = _layers.at(L).iChannel * pow(_layers.at(L).iSizeKer, 2);// 比如 4*5^2=4*25
-
-            // "前一层所有通道", 对应"本层任意一个通道"卷积核权值W(可训练参数)个数, 不包括加性偏置
-            int fan_in = _layers.at(L-1).iChannel * pow(_layers.at(L).iSizeKer, 2);
-
-            // 对当前层的Ker和Ker_delta初始化维数，并赋初值
-            _layers.at(L).Ker.resize(_layers.at(L - 1).iChannel);
-            _layers.at(L).Ker_delta.resize(_layers.at(L - 1).iChannel);
-
-            _layers.at(L).Ker_grad.resize(_layers.at(L - 1).iChannel);
-
-            // 对本层输入通道数做循环
-            for (int I = 0; I < _layers.at(L - 1).iChannel; I++)
-            {
-                _layers.at(L).Ker.at(I).resize(_layers.at(L).iChannel);
-                _layers.at(L).Ker_delta.at(I).resize(_layers.at(L).iChannel);
-
-                _layers.at(L).Ker_grad.at(I).resize(_layers.at(L).iChannel);// 这里仅仅初始化大小，不初始化值。值会在反向传播中给出
-
-                // 对本层输出通道数做循环
-                for (int J = 0; J < _layers.at(L).iChannel; J++)
-                {
-                    double maximum = (double)sqrt(6.0f / (fan_in + fan_out));
-
-                    // "前一层所有通道",对"本层所有通道",层对层的全连接,卷积核权值W,进行均匀分布初始化,范围为:[-1,1]*sqrt(6/(fan_in+fan_out))
-                    weights.create(_layers.at(L).iSizeKer, _layers.at(L).iSizeKer, CV_32FC1);
-                    rnger.fill(weights, cv::RNG::UNIFORM, cv::Scalar::all(-maximum), cv::Scalar::all( maximum));
-                    _layers.at(L).Ker[I][J]=weights// 注意是W[列I][行J],I为上一层的数目，J为当前层数目
-                    _layers.at(L).Ker_delta[I][J]=Mat::zeros(_layers.at(L).iSizeKer, _layers.at(L).iSizeKer,CV_32FC1);
-                }
-            }
-
-            // 对本层输出通道加性偏置进行0值初始化
-            _layers.at(L).B=Mat::zeros(_layers.at(L).iChannel, 1,CV_32FC1);
-            _layers.at(L).B_delta=Mat::zeros(_layers.at(L).iChannel, 1,CV_32FC1);
-
-            _layers.at(L).Delta.resize(_layers.at(L).iChannel);// 敏感度图的大小初始化，但不赋值
-
-            cout << "convolutional layer " << L + 1 << " has initialised!" << endl;
-        }
-
-        // ======================================================================
-        // 以下代码对第3,5层(下采样层)有效
-        //Maxpool不进行初始化
-//
-//        if (_layers.at(L).type == 's')
-//        {
-//            _layers.at(L).iSizePic[0] = floor((_layers.at(L - 1).iSizePic[0] + _layers.at(L).iSample - 1) / _layers.at(L).iSample);
-//            _layers.at(L).iSizePic[1] = floor((_layers.at(L - 1).iSizePic[1] + _layers.at(L).iSample - 1) / _layers.at(L).iSample);
-//            _layers.at(L).iChannel = _layers.at(L - 1).iChannel;
-//
-//            // 以下代码用于下采样层的计算
-//
-//            // 对本层输出通道乘性偏置进行1值初始化
-//            _layers.at(L).Beta.assign(_layers.at(L).iChannel, 1);
-//            _layers.at(L).Beta_delta.assign(_layers.at(L).iChannel, 0);
-//
-//            // 对本层输出通道加性偏置进行0值初始化
-//            _layers.at(L).B.assign(_layers.at(L).iChannel, 0);
-//            _layers.at(L).B_delta.assign(_layers.at(L).iChannel, 0);
-//
-//            _layers.at(L).Delta.resize(_layers.at(L).iChannel);// 敏感度图的大小初始化，但不赋值
-//
-//            cout << "subsampling layer " << L + 1 << " has initialised!" << endl;
-//        }
-
-        // ======================================================================
-        // 本层是全连接层的前提下，三种情况：前一层是下采样层，前一层是卷积层，前一层是输入层
-
-        if (_layers.at(L).type == 'f')
-        {
-            if (_layers.at(L - 1).type == 's' || _layers.at(L - 1).type == 'c' || _layers.at(L - 1).type == 'i')
-            {
-                // ------------------------------------------------------------------
-                // 以下代码对第6层(过渡全连接层)有效
-
-                // 当前层全连接输入个数 = 上一层每个通道的像素个数 * 上一层输入通道数
-                int fvnum = _layers.at(L - 1).iSizePic[0] * _layers.at(L - 1).iSizePic[1] * _layers.at(L - 1).iChannel;
-                // 当前输出层类别个数
-                int onum = _layers.at(L).iChannel;
-
-                double maximum = (double)sqrt(6.0f / (onum + fvnum));
-                // 初始化当前层与上一层的连接权值
-                weights.create(fvnum, onum, CV_32FC1);
-                rnger.fill(weights, cv::RNG::UNIFORM, cv::Scalar::all(-maximum), cv::Scalar::all( maximum));
-                _layers.at(L).W=weights// 注意是W[列I][行J],I为上一层的数目，J为当前层数目
-                _layers.at(L).W_delta=Mat::zeros(fvnum, onum,CV_32FC1);
-
-                // 对本层输出通道加性偏置进行0值初始化
-                _layers.at(L).B=Mat::zeros(onum, 1,CV_32FC1);
-                _layers.at(L).B_delta=Mat::zeros(onum, 1,CV_32FC1);
-            }
-            else if (_layers.at(L - 1).type == 'f')
-            {
-                // ------------------------------------------------------------------
-                // 以下代码对第7层(全连接层)有效。 对第8层也有效吧？
-
-                // 当前层全连接输入个数 = 上一层输入通道数
-                int fvnum = _layers.at(L - 1).iChannel;
-                // 当前输出层类别个数
-                int onum = _layers.at(L).iChannel;
-
-                double maximum = (double)sqrt(6.0f / (onum + fvnum));
-                // 初始化当前层与上一层的连接权值
-
-                weights.create(fvnum, onum, CV_32FC1);
-                rnger.fill(weights, cv::RNG::UNIFORM, cv::Scalar::all(-maximum), cv::Scalar::all( maximum));
-                _layers.at(L).W=weights// 注意是W[列I][行J],I为上一层的数目，J为当前层数目
-                _layers.at(L).W_delta=Mat::zeros(fvnum, onum,CV_32FC1);
-
-                // 对本层输出通道加性偏置进行0值初始化
-                _layers.at(L).B=Mat::zeros(onum, 1,CV_32FC1);
-                _layers.at(L).B_delta=Mat::zeros(onum, 1,CV_32FC1);
-            }
-
-            cout << "fully connected layer " << L + 1 << " has initialised!" << endl;
-        }
-    }
-}
-
-
-// lenet网络,正向计算(批处理算法,核心是convn用法,和输出层批量映射)
-//TODO: convolution
-void lenet::feed_forward(const vector<Mat> &train_x)
-{
-    // lenet网络层数
-    int n = _layers.size();
-
-    _layers.at(0).X.resize(1);
-    _layers.at(0).X.at(0) = train_x;
-
-    for (int L = 1; L < n; L++)
-    {
-        // ======================================================================
-        // 以下代码仅对第2,4层(卷积层)有效
-
-        if (_layers.at(L).type == 'c')
-        {
-            // 卷积层涉及到三个运算 : (1)卷积, (2)偏置(加), (3)ReLU映射
-
-            // 对当前层的输出做初始化
-            _layers.at(L).X.resize(_layers.at(L).iChannel);// 即为当前层每一个通道分配一个输出图
-
-            // 对本层输出通道数做循环
-            // J:通道数
-            for (int J = 0; J < _layers.at(L).iChannel; J++)
-            {
-                // 对当前层第J个通道的对上一层的所有卷积之和z，进行初始化(batchsize幅输入同时处理)
-                vector<Mat> z;//z是一个通道内batchsize幅输入的图片总和
-                bool conv_first_time = true;
-
-                // 1.卷积
-                for (int I = 0; I < _layers.at(L - 1).iChannel; I++)
-                {
-                    // 特别注意:
-                    // _layers.at(L - 1).X(I)为_batchsize幅输入, 为三维矩阵
-                    // _layers.at(L).Ker[I][J]为二维卷积核矩阵,[I]为为前一层通道数，J为当前层通道数
-                    // 这里采用了函数convn, 实现多个样本输入的同时处理
-                    // convn是三维卷积，此处是关键
-                    if (conv_first_time)
-                    {
-                        z = convolution(_layers.at(L - 1).X.at(I), _layers.at(L).Ker.at(I).at(J), "same");
-                        conv_first_time = false;
-                    }
-                    else
-                    {
-                        z.add(convolution(_layers.at(L - 1).X.at(I), _layers.at(L).Ker.at(I).at(J), "valid"));
-                    }
-                }
-
-                // 2.偏置(加)
-                //TODO B的调用
-                for (int i = 0; i < _batchsize; ++i) {
-
-                    _layers.at(L).X.at(J).at(i) = z.at(i) + _layers.at(L).B[J];
-                }
-
-
-                // 3.ReLU映射
-                _layers.at(L).X.at(J) = activation_function(_layers.at(L).X.at(J), _layers.at(L).activationfunction_type);
-            }
-        }
-
-        // ======================================================================
-        // 以下代码对第3,5层(下采样层)有效
-
-        if (_layers.at(L).type == 's')
-        {
-            // 特别注意:
-            // 下采样层仅涉及两个运算 : (1)下采样, (2)偏置(乘和加)
-            // 这里没有"relu映射"
-
-            // 对当前下采样层的输入输出做初始化
-            //X,X_down vector<vector<Mat>>
-            _layers.at(L).X_down.resize(_layers.at(L).iChannel);// 即为当前层每一个通道分配一个输入图
-            _layers.at(L).X.resize(_layers.at(L).iChannel);// 即为当前层每一个通道分配一个输出图
-
-            // 对本层输出通道数做循环(输入输出通道数相等)
-            for (int J = 0; J < _layers.at(L).iChannel; J++)
-            {
-                // 图片下采样函数, 行列采样倍数为iSample
-                // 以下代码用于下采样层的计算
-
-                // (1)下采样
-                //不用选择下采样类型，默认Max Pooling
-                _layers.at(L).X_down.at(J) = down_sample_max_pooling(_layers.at(L - 1).X.at(J));
-
-                // (2)偏置(乘和加)
-                //_layers.at(L).X.at(J) = _layers.at(L).X_down.at(J) * _layers.at(L).Beta.at(J) + _layers.at(L).B.at(J);
-            }
-        }
-
-        // ======================================================================
-        // 以下代码对第6,7,8层（全连接层）有效
-
-        if (_layers.at(L).type == 'f')
-        {
-            if ((_layers.at(L - 1).type == 's') || (_layers.at(L - 1).type == 'c') || (_layers.at(L - 1).type == 'i'))
-            {
-                // ------------------------------------------------------------------
-                // 以下代码对第6层(过渡全连接层)有效
-
-                // 特别注意:
-                // 全连接输出层涉及到三个运算 : (1)加权, (2)偏置(加), (3)ReLU映射
-
-                _layers.at(L - 1).X_vector.clear();
-
-                // 对前一层输出通道数做循环
-                // 计算用于本层输入的一维向量（前一层的所有通道输出图合并为一个一维向量，以便计算）
-                for (int J = 0; J < _layers.at(L - 1).iChannel; J++)
-                {
-                    // 第j个Featuremap的大小(实际上每个j都相等)
-                    int sa_page = _layers.at(L - 1).X.at(J).size();
-                    int sa_col = _layers.at(L - 1).X.at(J).at(0).cols;
-                    int sa_row = _layers.at(L - 1).X.at(J).at(0).rows;
-
-                    // 将所有的特征map拉成一条列向量。还有一维就是对应的样本索引。每个样本一列，每列为对应的特征向量，此处非常巧妙！
-                    // 会将每幅图像的按照列向量的形式抽取为1行，然后再将不同样本的列向量串联起来
-                    //输出X_vector为vector<Mat>,vector.size=batchsize,Mat为行向量，长度为FeatureMap展平
-                    _layers.at(L - 1).X_vector=reshape2vector( _layers.at(L - 1).X.at(J) );
-                }
-
-                // 计算网络的最终输出值。ReLU(W*X + b)，注意是同时计算了batchsize个样本的输出值
-
-                int col_batchsize = _layers.at(L - 1).X_vector.size();
-                // in = W*X + B (1)加权, (2)偏置(加)
-                vector<Mat> fcl_map_in = full_connect(_layers.at(L).W,_layers.at(L - 1).X_vector , _layers.at(L).B, true);
-                // out = activ(in) (3)sigmoid映射
-                _layers.at(L).X_vector = activation_function(fcl_map_in,_layers.at(L).activationfunction_type);
-
-            }
-            else if (_layers.at(L - 1).type == 'f')
-            {
-                // ------------------------------------------------------------------
-                // 以下代码对第7,8层(全连接层)有效
-
-
-                // 计算网络的最终输出值。sigmoid(W*X + b)，注意是同时计算了batchsize个样本的输出值
-
-                int col_batchsize = _layers.at(L - 1).X_vector.size();
-                // in = W*X + B (1)加权, (2)偏置(加)
-                vector<Mat> fcl_map_in = full_connect(_layers.at(L).W,_layers.at(L - 1).X_vector , _layers.at(L).B,false);
-                // out = activ(in) (3)sigmoid映射
-                _layers.at(L).X_vector = activation_function(fcl_map_in, _layers.at(L).activationfunction_type);
-            }
-        }
-    }
-
-    // 将最后一层（全连接层）的输出结果喂给_Y，作为神经网络的输出
-    _Y = _layers.at(n-1).X_vector;
-}
-
-
-// lenet网络,反向传播(批处理算法)
-void lenet::back_propagation(const vector<Mat> &train_y)
-{
-    // lenet网络层数
-    int n = _layers.size();
-
-    // 输出误差: 预测值-期望值
-    //损失函数用cross entropy
-    //计算softmax回传梯度
-    vector<Mat> soft_max_grad = calc_error(_Y, train_y);
-
-    // 输出层灵敏度(残差)
-    // 注意，这里需要说明下，这里对应的公式是 delta = (y - t).*f'(u),但是这里为什么是f'(x)呢？
-    // 因为这里其实是sigmoid求导，f'(u) = x*(1-x)，所以输入的就是x了。
-    // 其中，u表示当前层输入，x表示当前层输出。
-    //But, 由于网络最后用的式softMax输出，所以以上都没用，嗯~ o(*￣▽￣*)o，对的。
-    //损失函数用cross entropy
-    //Softmax和cross enropy求偏导结果就是预测值与期望值的差
-    //**************************useless********************************************************
-    //_layers.at(n - 1).Delta_vector = E * derivation(_layers.at(n - 1).X_vector, _activation_func_type);
-
-    // loss_function是交叉熵,已对样本数做平均
-    //_err = 0.5 * E.pow(2).sum() / E.size();// 当前轮的当前批次的交叉熵
-    //*****************************************************************************************
-    //TODO: 用交叉熵计算
-    _err=matsum();
-    // ************** 灵敏度(残差)的反向传播 ******************************
-
-    int tmp = 1;
-    // if (_layers.at(1).type == 'f')
-    // {
-    //     // 当第二层就是全连接层时,相当于输入图片拉成一个特征矢量形成的BP网络,
-    //     // 考虑到必须计算net.layers{1}.X_vector,所以L的下限必须到0
-    //     tmp = 0;
-    // }
-    // else
-    // {
-    //     // 其它情况L下限是1就可以
-    //     tmp = 1;
-    // }
-
-    for (int L = (n - 2); L >= tmp; L--)
-    {
-        // =====================================================================
-        // 以下代码对“下一层”为“全连接层”时有效
-
-        if (_layers.at(L + 1).type == 'f')
-        {
-            if (_layers.at(L).type == 'f')
-                // ------------------------------------------------------------------
-                // 以下代码对第6(过渡全连接层),7层(全连接层)有效,即f7->f6,f8->f7
-            {
-                // 典型的BP网络输出层对隐层的灵敏度(残差)的反向传播公式
-                //TODO:derivation_fcl
-                _layers.at(L).Delta_vector=derivation_fcl(_layers.at(L + 1).Delta_vector,_layers.at(L-1).X);
-
-                // delta_{L} = W_{L+1}^T * delta_{L+1} .* f'(X_{L})
-                //_layers.at(L).Delta_vector = _layers.at(L + 1).W.transpose().product(_layers.at(L + 1).Delta_vector) * derivation(_layers.at(L).X_vector, _activation_func_type);
-                // 作为参考，当L=6（倒数第二层）时，上式的维度如下行所示：
-                // _layers.at(L).Delta = [84, 10] [行 列]
-                // _layers.at(L + 1).W = [10, 84]
-                // _layers.at(L + 1).W.transpose() = [84 10]
-                // _layers.at(L + 1).Delta = [10 10]
-                // _layers.at(L).X_vector = [84 10]
-            }
-            else if (_layers.at(L).type == 's' || _layers.at(L).type == 'c' || _layers.at(L).type == 'i')
-                // ------------------------------------------------------------------
-                // 以下代码对第5层(降采样层)有效，其“下一层”为过渡全连接层
-            {
-                // 每个输出通道图像尺寸(三维矢量,  第三维是批处理样本个数，最后两维是尺寸)
-                int SizePic_col = _layers.at(L).X.at(0).at(0).cols;
-                int SizePic_row = _layers.at(L).X.at(0).at(0).rows;
-
-                // 输出图像像素个数
-                int fvnum = SizePic_col * SizePic_row;
-
-                // 典型的BP网络输出层对隐层的灵敏度(残差)的反向传播公式
-
-                // 若当前层是降采样层，或输入层
-                _layers.at(L).Delta_vector = _layers.at(L + 1).W.t().product(_layers.at(L + 1).Delta_vector);
-                // 作为参考，当L=4（第二个降采样层，下一层为全连接层）时，上式的维度如下行所示：
-                // _layers.at(L).Delta_vec = [100 10]
-                // _layers.at(L + 1).W = [120 100]
-                // _layers.at(L + 1).W.transpose() = [100 120]
-                // _layers.at(L + 1).Delta_vec = [120 10]
-
-                // 若当前层是卷积层
-                if (_layers.at(L).type == 'c')
-                {
-                    // 由于卷积层存在激活函数，则还需要点乘当前层激活函数的导数，才是当前层的灵敏度
-                    _layers.at(L).Delta_vector.dot_product(derivation(_layers.at(L).X_vector, _activation_func_type));
-                }
-
-                // 此处也是批处理的
-                // 将本层的矢量灵敏度(残差), 每一列为一个样本, reshape成通道表示(矢量化全连接->通道化全连接)
-                _layers.at(L).Delta = reshape2channel(_layers.at(L).Delta_vector, _layers.at(L).iChannel, SizePic_col, SizePic_row);
-            }
-        }
-
-        // =====================================================================
-        // 以下代码对“下一层”为“降采样层”时有效
-        // 参考资料：http://www.cnblogs.com/tornadomeet/p/3468450.html
-
-        if (_layers.at(L + 1).type == 's')
-        {
-            // 一般“卷积层”的下一层是“降采样层”
-
-            // 对本层输出通道数做循环
-
-            //TODO：对于maxpooling，应该将delta放到原来最大值的位置，其他置零
-            for (int J = 0; J < _layers.at(L).iChannel; J++)
-            {
-                // 本层导数
-                vector<Mat> deriv_J = derivation(_layers.at(L).X.at(J), _activation_func_type);
-
-                // 下一层的上采样，复制到原来的尺寸
-                vector<Mat> next_layer_delta_J = up_sample(_layers.at(L + 1).Delta.at(J), _layers.at(L + 1).iSample, _down_sample_type);
-
-                // 警告：下采样后和上采样完，两者的尺寸不一致，比如当尺寸为奇数5时。但因为LeNet5的此处大小为偶数，所以此问题暂时不存在
-
-                // 以下代码用于下采样层的计算
-                // 这里乘以_layers.at(L + 1).Beta.at(J)（类似W），是因为下一层的下采样层的Delta，并没有乘上乘性偏置Beta（为什么？看Delta的定义）
-                _layers.at(L).Delta.at(J) = deriv_J * next_layer_delta_J * ((1.0 / (double)pow(_layers.at(L + 1).iSample, 2)) * _layers.at(L + 1).Beta.at(J));
-            }
-        }
-
-        // =====================================================================
-        // 以下代码对“下一层”为“卷积层”时有效，这里默认是降采样层层（输入层不算）
-        // 参考资料：http://www.cnblogs.com/tornadomeet/p/3468450.html
-
-        if (_layers.at(L + 1).type == 'c')
-        {
-            // 对本层输出通道数做循环
-            for (int I = 0; I < _layers.at(L).iChannel; I++)
-            {
-                vector<Mat> z = _layers.at(L).X.at(0);
-                z.clear();
-
-                // 对下一层输出通道数做循环
-                for (int J = 0; J < _layers.at(L + 1).iChannel; J++)
-                {
-                    // 当前层灵敏度(残差)net.layers{ L }.Delta{ J }计算
-                    z = z + convolution(_layers.at(L + 1).Delta.at(J), _layers.at(L + 1).Ker.at(I).at(J).flip_xy(), "full");
-                }
-
-                // 因为这里默认是降采样层，所以不存在激活函数，所以f'(u)=1，即可省略乘f'(u)
-                _layers.at(L).Delta.at(I) = z;
-            }
-        }
-
-        // =====================================================================
-    }
-
-    // ****************** 求训练参数的梯度 **************************************
-
-    // 这里与《Notes on Convolutional Neural Networks》中不同，
-    // 这里的“子采样”层没有参数，也没有激活函数，
-    // 所以在子采样层是没有需要求解的参数的
-
-    // 对lenet网络层数做循环(注意:这里实际上可以从第2层开始)
-    for (int L = 1; L < n; L++)
-    {
-        // =====================================================================
-        // 以下代码用于第2,4层(卷积层)的计算
-
-        if (_layers.at(L).type == 'c')
-        {
-            _layers.at(L).B_grad.resize(_layers.at(L).iChannel);
-
-            // 对本层输出通道数做循环
-            for (int J = 0; J < _layers.at(L).iChannel; J++)
-            {
-                // 对上一层输出通道数做循环
-                for (int I = 0; I < _layers.at(L - 1).iChannel; I++)
-                {
-                    // 特别注意:
-                    // (1)等价关系 rot180(conv2(a, rot180(b), 'valid')) = conv2(rot180(a), b, 'valid')
-                    // (2)若ndims(a) = ndims(b) = 3, 则convn(filpall(a), b, 'valid')表示三个维度上同时相关运算
-                    // (3)若size(a, 3) = size(b, 3), 则上式输出第三维为1, 表示参与训练样本的叠加和(批处理算法), 结果要对样本数做平均
-
-                    _layers.at(L).Ker_grad.at(I).at(J) = convolution(_layers.at(L - 1).X.at(I).flip(), _layers.at(L).Delta.at(J), "valid") * (1.0 / (double)_layers.at(L).Delta.at(J).size());
-                }
-
-                // 对所有net.layers{ L }.Delta{ J }的叠加, 结果要对样本数做平均
-                _layers.at(L).B_grad.at(J) =_layers.at(L).Delta.at(J).sum() / (double)_layers.at(L).Delta.at(J).size();
-            }
-        }
-
-        // =====================================================================
-        // 以下代码用于第3,5层(下采样层)的计算
-        //去掉，maxpooling不需要参数
-
-//        if (_layers.at(L).type == 's')
-//        {
-//            _layers.at(L).Beta_grad.resize(_layers.at(L).iChannel);
-//            _layers.at(L).B_grad.resize(_layers.at(L).iChannel);
-//
-//            int batch_num = _layers.at(L).Delta.at(0).size();
-//
-//            for (int J = 0; J < _layers.at(L).iChannel; J++)
-//            {
-//                // 这里对下采样层的Beta的梯度求解，类似于W，然后求平均
-//                // 为什么是全部相加呢？因为Beta和B影响了全部的元素啊。。当然要相加了
-//                _layers.at(L).Beta_grad.at(J) = sum_vector(_layers.at(L).Delta.at(J).reshape_to_vector() * (_layers.at(L).X_down.at(J).reshape_to_vector())) * (1.0 / (double)_layers.at(L).Delta.at(J).size());
-//
-//                // 对所有net.layers{L}.Delta{J}的叠加,结果要对样本数做平均
-//                _layers.at(L).B_grad.at(J) = sum_vector(_layers.at(L).Delta.at(J).reshape_to_vector()) * (1.0 / (double)_layers.at(L).Delta.at(J).size());
-//            }
-//        }
-
-        // =====================================================================
-        // 以下代码用于第6,7,8层(全连接层)的计算
-
-        if (_layers.at(L).type == 'f')
-        {
-            // 权值矩阵梯度, 结果要对样本数做平均。这里体现了batch的作用，是一个batch的平均
-            _layers.at(L).W_grad = accumulate(full_connect(_layers.at(L).Delta_vector,_layers.at(L - 1).X_vector,true) * (1.0 / _layers.at(L).Delta_vector.size());
-
-            // 输出层灵敏度(残差)就是偏置(加性)的梯度, 这里也要对样本数做平均。这里体现了batch的作用，是一个batch的平均
-            _layers.at(L).B_grad = accumulate(_layers.at(L).Delta_vector.begin(),_layers.at(L).Delta_vector.end(),Mat::zeros(_layers.at(L).Delta_vector.begin().rows,_layers.at(L).Delta_vector.begin().cols,CV_64F1))/_layers.at(L).Delta_vector.size();
-        }
-
-        // =====================================================================
-    }
-}
-
-
-// lenet网络,卷积层和输出层的权值更新(附加惯性项)
-void lenet::update(void)
-{
-    // lenet网络层数
-    int n = _layers.size();
-
-    // 对权值和偏置的更新采用动量法（对梯度下降法的改进，防止反复震荡），参考文献：https://blog.csdn.net/qq_37053885/article/details/81605365
-
-    for (int L = 1; L < n; L++)
-    {
-        // ======================================================================
-        // 以下代码用于卷积层的计算
-        if (_layers.at(L).type == 'c')
-        {
-            // 对本层输出通道数做循环
-            for (int J = 0; J < _layers.at(L).iChannel; J++)
-            {
-                // 对上一层输出通道数做循环
-                for (int I = 0; I < _layers.at(L - 1).iChannel; I++)
-                {
-                    // 这里没什么好说的，就是普通的权值更新的公式：W_new = W_old - alpha * de / dW（误差对权值导数）
-                    // net.layers{ L }.Ker_delta{ I }{J} = net.eta * net.layers{ L }.Ker_delta{ I }{J} -net.alpha * net.layers{ L }.Ker_grad{ I }{J};
-                    // net.layers{ L }.Ker{ I }{J} = net.layers{ L }.Ker{ I }{J} +net.layers{ L }.Ker_delta{ I }{J};
-                    _layers.at(L).Ker_delta.at(I).at(J) = _layers.at(L).Ker_delta.at(I).at(J) * _eta - _layers.at(L).Ker_grad.at(I).at(J) * _alpha;
-                    _layers.at(L).Ker.at(I).at(J) = _layers.at(L).Ker.at(I).at(J) + _layers.at(L).Ker_delta.at(I).at(J);
-                }
-            }
-
-            // 本层一个通道输出对应一个加性偏置net.layers{ L }.B{ J }
-            _layers.at(L).B_delta = _layers.at(L).B_delta * _eta - _layers.at(L).B_grad * _alpha;
-            _layers.at(L).B = _layers.at(L).B + _layers.at(L).B_delta;
-        }
-
-        // ======================================================================
-        // 以下代码用于下采样层的计算
-//        if (_layers.at(L).type == 's')
-//        {
-//            // 本层一个通道输出对应一个加性偏置net.layers{ L }.B{ J }
-//            _layers.at(L).B_delta = _layers.at(L).B_delta * _eta - _layers.at(L).B_grad * _alpha;
-//            _layers.at(L).B = _layers.at(L).B + _layers.at(L).B_delta;
-//
-//            // 本层一个通道输出对应一个乘性偏置net.layers{ L }.Beta{ J }
-//            _layers.at(L).Beta_delta = _layers.at(L).Beta_delta * _eta - _layers.at(L).Beta_grad * _alpha;
-//            _layers.at(L).Beta = _layers.at(L).Beta + _layers.at(L).Beta_delta;
-//        }
-
-        // ======================================================================
-        // 以下代码用于全连接层的计算
-        if (_layers.at(L).type == 'f')
-        {
-            // 本层一个通道输出对应一个加权系数net.layers{ L }.W
-            _layers.at(L).W_delta = _layers.at(L).W_delta * _eta -  _layers.at(L).W_grad * _alpha;
-            _layers.at(L).W = _layers.at(L).W + _layers.at(L).W_delta;
-
-            // 本层一个通道输出对应一个加性偏置net.layers{ L }.B{ J }
-            _layers.at(L).B_delta = _layers.at(L).B_delta * _eta - _layers.at(L).B_grad * _alpha;
-            _layers.at(L).B = _layers.at(L).B + _layers.at(L).B_delta;
-        }
-    }
-}
-
-```
-
-
-我认为用
+### 3. 已知卷积层的$δ^l$，推导该层的$W,b$的梯度
+
+对于全连接层，可以按DNN的反向传播算法求该层$W,b$的梯度，而池化层并没有$W,b$,也不用求$W,b$的梯度。只有卷积层的$W,b$需要求出。
+
+由卷积层$z,W,b$的关系:
+$$
+z^{l}=a^{l-1} * W^{l}+b
+$$
+可得：
+$$
+\frac{\partial J(W, b)}{\partial W^{l}}=\frac{\partial J(W, b)}{\partial z^{l}} \frac{\partial z^{l}}{\partial W^{l}}=a^{l-1} * \delta^{l}
+$$
+
+注意到此时卷积核并没有反转，主要是此时是层内的求导，而不是反向传播到上一层的求导。
+
+对于第l层，某个卷积核矩阵W的导数可以表示如下：
+$$
+\frac{\partial J(W, b)}{\partial W_{p q}^{l}}=\sum_{i} \sum_{j}\left(\delta_{i j}^{l} a_{i+p-1, j+q-1}^{l-1}\right)
+$$
+
+输入a是4x4的矩阵，卷积核$W$是3x3的矩阵，输出$z$是2x2的矩阵,那么反向传播的z的梯度误差$δ$也是2x2的矩阵。
+
+$$
+\frac{\partial J(W, b)}{\partial W^{l}}=\left( \begin{array}{llll}{a_{11}} & {a_{12}} & {a_{13}} & {a_{14}} \\ {a_{21}} & {a_{22}} & {a_{23}} & {a_{24}} \\ {a_{31}} & {a_{32}} & {a_{33}} & {a_{34}} \\ {a_{41}} & {a_{42}} & {a_{43}} & {a_{44}}\end{array}\right) * \left( \begin{array}{cc}{\delta_{11}} & {\delta_{12}} \\ {\delta_{21}} & {\delta_{22}}\end{array}\right)
+$$
+
+而对于b,则稍微有些特殊，因为$δ^l$是高维张量，而b只是一个向量，不能像DNN那样直接和$δ^l$相等。通常的做法是将$δ^l$的各个子矩阵的项分别求和，得到一个误差向量，即为b的梯度：
+$$
+\frac{\partial J(W, b)}{\partial b^{l}}=\sum_{u, v}\left(\delta^{l}\right)_{u, v}
+$$
+
+## 总结
+
+输入：m个图片样本，CNN模型的层数L和所有隐藏层的类型，对于卷积层，要定义卷积核的大小K，卷积核子矩阵的维度F，填充大小P，步幅S。对于池化层，要定义池化区域大小k和池化标准（MAX或Average），对于全连接层，要定义全连接层的激活函数（输出层除外）和各层的神经元个数。梯度迭代参数迭代步长$α$,最大迭代次数MAX与停止迭代阈值$ϵ$
+
+输出：CNN模型各隐藏层与输出层的$W,b$
+
+1. 初始化各隐藏层与输出层的各$W,b$的值为一个随机值。
+2. for iter to 1 to MAX：
+   1. for i =1 to m：
+   2.  将CNN输入$a^1$设置为$x_i$对应的张量
+   3.   for l=2 to L-1，根据下面3种情况进行前向传播算法计算：
+         1. 如果当前是全连接层：则有$a^{i, l}=\sigma\left(z^{i, l}\right)=\sigma\left(W^{l} a^{i, l-1}+b^{l}\right)$
+        2. 如果当前是卷积层：则有$a^{i, l}=\sigma\left(z^{i, l}\right)=\sigma\left(W^{l} * a^{i, l-1}+b^{l}\right)$
+        3. 如果当前是池化层：则有$a^{i, l}=pool(a^{i, l-1})$, 这里的pool指按照池化区域大小k和池化标准将输入张量缩小的过程
+    4.  对于输出层第L层: $a^{i, L}=\operatorname{softmax}\left(z^{i, L}\right)=\operatorname{softmax}\left(W^{L} a^{i, L-1}+b^{L}\right)$
+    5.  通过损失函数计算输出层的$δ^{i,L}$
+    6.  for l= L-1 to 2, 根据下面3种情况进行进行反向传播算法计算:
+        1. 如果当前是全连接层：$\delta^{i, l}=\left(W^{l+1}\right)^{T} \delta^{i, l+1} \odot \sigma^{\prime}\left(z^{i, l}\right)$
+        1. 如果当前是卷积层：$\delta^{i, l}=\delta^{i, l+1} * \operatorname{rot} 180\left(W^{l+1}\right) \odot \sigma^{\prime}\left(z^{i, l}\right)$
+        2. 如果当前是池化层：$\delta^{i, l}=u p s a m p l e\left(\delta^{i, l+1}\right) \odot \sigma^{\prime}\left(z^{i, l}\right)$
+    8. for l = 2 to L，根据下面2种情况更新第l层的$W^l,b^l$:
+       1.  如果当前是全连接层：$W^{l}=W^{l}-\alpha \sum_{i=1}^{m} \delta^{i, l}\left(a^{i, l-1}\right)^{T}, \quad b^{l}=b^{l}-\alpha \sum_{i=1}^{m} \delta^{i, l}$
+       2.   如果当前是卷积层，对于每一个卷积核有：$W^{l}=W^{l}-\alpha \sum_{i=1}^{m} \delta^{i, l} * a^{i, l-1}$,$b^{l}=b^{l}-\alpha \sum_{i=1}^{m} \sum_{u, v}\left(\delta^{i, l}\right)_{u, v}$
+    9.  如果所有$W，b$的变化值都小于停止迭代阈值$ϵ$，则跳出迭代循环到步骤3。
+3. 输出各隐藏层与输出层的线性关系系数矩阵$W$和偏倚向量$b$。
+
+## ReLU求导
+
+## SoftMax
+
+softmax用于多分类过程中，它将多个神经元的输出，映射到（0,1）区间内，可以看成概率来理解，从而来进行多分类
+
+$$S_i=\frac{e^i}{\sum_je^j}$$
+
+<img src=http://upload-images.jianshu.io/upload_images/5236230-12cd299a8d571d1e.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240>
+
+### softmax求导
+
+当我们对分类的Loss进行改进的时候，我们要通过梯度下降，每次优化一个step大小的梯度，这个时候就要**求Loss对每个权重矩阵的偏导，然后应用链式法则。**
+
+#### 交叉熵(cross entropy)
+
+$$loss=-\sum _i y_ilna_i$$
+
+y为真实值，a为输出值。
+
+$$\Rightarrow loss=y_jlna_j$$
+
+$$a_i-y_i$$
+
+## 全连接层权重更新
+
+$$[weights\; diff\;]_{i\times  j}=[data_{in}]_{i\times batch} *[top\;diff]_{batch*\times j}$$
+
+$$
+\frac{\partial a_{i}}{\partial b_{i}}=1
+$$
+
+<img src="https://img-blog.csdn.net/20180731151033235?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl8zNzI1MTA0NA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/0">
