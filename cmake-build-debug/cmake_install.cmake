@@ -1,4 +1,4 @@
-# Install script for directory: /home/assassin/CLionProjects/lenet
+# Install script for directory: /home/assassin/CLionProjects/lenet-5-c
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/assassin/CLionProjects/lenet/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

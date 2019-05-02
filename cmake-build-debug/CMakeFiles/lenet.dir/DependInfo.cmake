@@ -4,10 +4,10 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/assassin/CLionProjects/lenet/cmake-build-debug/include/data.cpp" "/home/assassin/CLionProjects/lenet/cmake-build-debug/CMakeFiles/lenet.dir/include/data.cpp.o"
-  "/home/assassin/CLionProjects/lenet/cmake-build-debug/include/lenet.cpp" "/home/assassin/CLionProjects/lenet/cmake-build-debug/CMakeFiles/lenet.dir/include/lenet.cpp.o"
-  "/home/assassin/CLionProjects/lenet/cmake-build-debug/include/maths.cpp" "/home/assassin/CLionProjects/lenet/cmake-build-debug/CMakeFiles/lenet.dir/include/maths.cpp.o"
-  "/home/assassin/CLionProjects/lenet/main.cpp" "/home/assassin/CLionProjects/lenet/cmake-build-debug/CMakeFiles/lenet.dir/main.cpp.o"
+  "/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/include/data.cpp" "/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/CMakeFiles/lenet.dir/include/data.cpp.o"
+  "/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/include/lenet.cpp" "/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/CMakeFiles/lenet.dir/include/lenet.cpp.o"
+  "/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/include/maths.cpp" "/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/CMakeFiles/lenet.dir/include/maths.cpp.o"
+  "/home/assassin/CLionProjects/lenet-5-c/main.cpp" "/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/CMakeFiles/lenet.dir/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
@@ -16,7 +16,7 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "include"
   "/usr/local/cuda/include"
   "../lenet"
-  "/usr/local/opencv4/include/opencv4"
+  "/usr/local/include/opencv4"
   )
 
 # Targets to which this target links.

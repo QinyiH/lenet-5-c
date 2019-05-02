@@ -71,8 +71,20 @@ vector<Mat> full_connect(const Mat& Weights,const vector<Mat>& vector_vector, co
 //计算误差
 vector<Mat> calc_error(const vector<Mat>& Y, const vector<Mat>& label);
 
+//批处理矩阵乘法
 vector<Mat> matrix_dot(const vector<Mat> &matrix1,const vector<Mat> &matrix2);
 
+//全连接层的偏导
 vector<Mat> derivation_fcl(const vector<Mat>& Delta_vector, const vector<Mat> &image_batch);
+
+Mat im2col(const vector<Mat>& FeatureMaps,const int kernelsize);
+
+/相当于径向基函数(RBF)
+vector<int> find_max(const vector<Mat> &vector_10);
+
+//计算输出label和label的不同的个数，即预测错误率
+double count_dif(const vector<int> &index_1, const vector<int> &index_2);
+
+vector<vector<Mat>> convolution(const vector<Mat> &batch_singlech_inimage, const Mat &kernel,string mode);
 
 #endif //LENET_MATHS_H

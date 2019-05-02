@@ -34,19 +34,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /home/assassin/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/191.6707.62/bin/cmake/linux/bin/cmake
+CMAKE_COMMAND = /home/assassin/cmake-3.14.3-Linux-x86_64/bin/cmake
 
 # The command to remove a file.
-RM = /home/assassin/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/191.6707.62/bin/cmake/linux/bin/cmake -E remove -f
+RM = /home/assassin/cmake-3.14.3-Linux-x86_64/bin/cmake -E remove -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/assassin/CLionProjects/lenet
+CMAKE_SOURCE_DIR = /home/assassin/CLionProjects/lenet-5-c
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/assassin/CLionProjects/lenet/cmake-build-debug
+CMAKE_BINARY_DIR = /home/assassin/CLionProjects/lenet-5-c/cmake-build-debug
 
 # Include any dependencies generated for this target.
 include CMakeFiles/lenet.dir/depend.make
@@ -59,55 +59,55 @@ include CMakeFiles/lenet.dir/flags.make
 
 CMakeFiles/lenet.dir/main.cpp.o: CMakeFiles/lenet.dir/flags.make
 CMakeFiles/lenet.dir/main.cpp.o: ../main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/assassin/CLionProjects/lenet/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/lenet.dir/main.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/lenet.dir/main.cpp.o -c /home/assassin/CLionProjects/lenet/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/lenet.dir/main.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/lenet.dir/main.cpp.o -c /home/assassin/CLionProjects/lenet-5-c/main.cpp
 
 CMakeFiles/lenet.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/lenet.dir/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/assassin/CLionProjects/lenet/main.cpp > CMakeFiles/lenet.dir/main.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/assassin/CLionProjects/lenet-5-c/main.cpp > CMakeFiles/lenet.dir/main.cpp.i
 
 CMakeFiles/lenet.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/lenet.dir/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/assassin/CLionProjects/lenet/main.cpp -o CMakeFiles/lenet.dir/main.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/assassin/CLionProjects/lenet-5-c/main.cpp -o CMakeFiles/lenet.dir/main.cpp.s
 
 CMakeFiles/lenet.dir/include/data.cpp.o: CMakeFiles/lenet.dir/flags.make
 CMakeFiles/lenet.dir/include/data.cpp.o: include/data.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/assassin/CLionProjects/lenet/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/lenet.dir/include/data.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/lenet.dir/include/data.cpp.o -c /home/assassin/CLionProjects/lenet/cmake-build-debug/include/data.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/lenet.dir/include/data.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/lenet.dir/include/data.cpp.o -c /home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/include/data.cpp
 
 CMakeFiles/lenet.dir/include/data.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/lenet.dir/include/data.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/assassin/CLionProjects/lenet/cmake-build-debug/include/data.cpp > CMakeFiles/lenet.dir/include/data.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/include/data.cpp > CMakeFiles/lenet.dir/include/data.cpp.i
 
 CMakeFiles/lenet.dir/include/data.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/lenet.dir/include/data.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/assassin/CLionProjects/lenet/cmake-build-debug/include/data.cpp -o CMakeFiles/lenet.dir/include/data.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/include/data.cpp -o CMakeFiles/lenet.dir/include/data.cpp.s
 
 CMakeFiles/lenet.dir/include/maths.cpp.o: CMakeFiles/lenet.dir/flags.make
 CMakeFiles/lenet.dir/include/maths.cpp.o: include/maths.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/assassin/CLionProjects/lenet/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/lenet.dir/include/maths.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/lenet.dir/include/maths.cpp.o -c /home/assassin/CLionProjects/lenet/cmake-build-debug/include/maths.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/lenet.dir/include/maths.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/lenet.dir/include/maths.cpp.o -c /home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/include/maths.cpp
 
 CMakeFiles/lenet.dir/include/maths.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/lenet.dir/include/maths.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/assassin/CLionProjects/lenet/cmake-build-debug/include/maths.cpp > CMakeFiles/lenet.dir/include/maths.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/include/maths.cpp > CMakeFiles/lenet.dir/include/maths.cpp.i
 
 CMakeFiles/lenet.dir/include/maths.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/lenet.dir/include/maths.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/assassin/CLionProjects/lenet/cmake-build-debug/include/maths.cpp -o CMakeFiles/lenet.dir/include/maths.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/include/maths.cpp -o CMakeFiles/lenet.dir/include/maths.cpp.s
 
 CMakeFiles/lenet.dir/include/lenet.cpp.o: CMakeFiles/lenet.dir/flags.make
 CMakeFiles/lenet.dir/include/lenet.cpp.o: include/lenet.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/assassin/CLionProjects/lenet/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/lenet.dir/include/lenet.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/lenet.dir/include/lenet.cpp.o -c /home/assassin/CLionProjects/lenet/cmake-build-debug/include/lenet.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/lenet.dir/include/lenet.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/lenet.dir/include/lenet.cpp.o -c /home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/include/lenet.cpp
 
 CMakeFiles/lenet.dir/include/lenet.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/lenet.dir/include/lenet.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/assassin/CLionProjects/lenet/cmake-build-debug/include/lenet.cpp > CMakeFiles/lenet.dir/include/lenet.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/include/lenet.cpp > CMakeFiles/lenet.dir/include/lenet.cpp.i
 
 CMakeFiles/lenet.dir/include/lenet.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/lenet.dir/include/lenet.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/assassin/CLionProjects/lenet/cmake-build-debug/include/lenet.cpp -o CMakeFiles/lenet.dir/include/lenet.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/include/lenet.cpp -o CMakeFiles/lenet.dir/include/lenet.cpp.s
 
 # Object files for target lenet
 lenet_OBJECTS = \
@@ -124,25 +124,58 @@ lenet: CMakeFiles/lenet.dir/include/data.cpp.o
 lenet: CMakeFiles/lenet.dir/include/maths.cpp.o
 lenet: CMakeFiles/lenet.dir/include/lenet.cpp.o
 lenet: CMakeFiles/lenet.dir/build.make
-lenet: /usr/local/opencv4/lib/libopencv_dnn.so.4.1.0
-lenet: /usr/local/opencv4/lib/libopencv_gapi.so.4.1.0
-lenet: /usr/local/opencv4/lib/libopencv_ml.so.4.1.0
-lenet: /usr/local/opencv4/lib/libopencv_objdetect.so.4.1.0
-lenet: /usr/local/opencv4/lib/libopencv_photo.so.4.1.0
-lenet: /usr/local/opencv4/lib/libopencv_stitching.so.4.1.0
-lenet: /usr/local/opencv4/lib/libopencv_video.so.4.1.0
-lenet: /usr/lib/x86_64-linux-gnu/libboost_system.so
-lenet: /usr/lib/x86_64-linux-gnu/libboost_filesystem.so
-lenet: /usr/local/opencv4/lib/libopencv_calib3d.so.4.1.0
-lenet: /usr/local/opencv4/lib/libopencv_features2d.so.4.1.0
-lenet: /usr/local/opencv4/lib/libopencv_flann.so.4.1.0
-lenet: /usr/local/opencv4/lib/libopencv_highgui.so.4.1.0
-lenet: /usr/local/opencv4/lib/libopencv_videoio.so.4.1.0
-lenet: /usr/local/opencv4/lib/libopencv_imgcodecs.so.4.1.0
-lenet: /usr/local/opencv4/lib/libopencv_imgproc.so.4.1.0
-lenet: /usr/local/opencv4/lib/libopencv_core.so.4.1.0
+lenet: /usr/local/lib/libopencv_gapi.so.4.1.0
+lenet: /usr/local/lib/libopencv_stitching.so.4.1.0
+lenet: /usr/local/lib/libopencv_aruco.so.4.1.0
+lenet: /usr/local/lib/libopencv_bgsegm.so.4.1.0
+lenet: /usr/local/lib/libopencv_bioinspired.so.4.1.0
+lenet: /usr/local/lib/libopencv_ccalib.so.4.1.0
+lenet: /usr/local/lib/libopencv_cvv.so.4.1.0
+lenet: /usr/local/lib/libopencv_dnn_objdetect.so.4.1.0
+lenet: /usr/local/lib/libopencv_dpm.so.4.1.0
+lenet: /usr/local/lib/libopencv_face.so.4.1.0
+lenet: /usr/local/lib/libopencv_freetype.so.4.1.0
+lenet: /usr/local/lib/libopencv_fuzzy.so.4.1.0
+lenet: /usr/local/lib/libopencv_hdf.so.4.1.0
+lenet: /usr/local/lib/libopencv_hfs.so.4.1.0
+lenet: /usr/local/lib/libopencv_img_hash.so.4.1.0
+lenet: /usr/local/lib/libopencv_line_descriptor.so.4.1.0
+lenet: /usr/local/lib/libopencv_quality.so.4.1.0
+lenet: /usr/local/lib/libopencv_reg.so.4.1.0
+lenet: /usr/local/lib/libopencv_rgbd.so.4.1.0
+lenet: /usr/local/lib/libopencv_saliency.so.4.1.0
+lenet: /usr/local/lib/libopencv_sfm.so.4.1.0
+lenet: /usr/local/lib/libopencv_stereo.so.4.1.0
+lenet: /usr/local/lib/libopencv_structured_light.so.4.1.0
+lenet: /usr/local/lib/libopencv_superres.so.4.1.0
+lenet: /usr/local/lib/libopencv_surface_matching.so.4.1.0
+lenet: /usr/local/lib/libopencv_tracking.so.4.1.0
+lenet: /usr/local/lib/libopencv_videostab.so.4.1.0
+lenet: /usr/local/lib/libopencv_xfeatures2d.so.4.1.0
+lenet: /usr/local/lib/libopencv_xobjdetect.so.4.1.0
+lenet: /usr/local/lib/libopencv_xphoto.so.4.1.0
+lenet: /usr/local/lib/libopencv_shape.so.4.1.0
+lenet: /usr/local/lib/libopencv_datasets.so.4.1.0
+lenet: /usr/local/lib/libopencv_plot.so.4.1.0
+lenet: /usr/local/lib/libopencv_text.so.4.1.0
+lenet: /usr/local/lib/libopencv_dnn.so.4.1.0
+lenet: /usr/local/lib/libopencv_highgui.so.4.1.0
+lenet: /usr/local/lib/libopencv_ml.so.4.1.0
+lenet: /usr/local/lib/libopencv_phase_unwrapping.so.4.1.0
+lenet: /usr/local/lib/libopencv_optflow.so.4.1.0
+lenet: /usr/local/lib/libopencv_ximgproc.so.4.1.0
+lenet: /usr/local/lib/libopencv_video.so.4.1.0
+lenet: /usr/local/lib/libopencv_videoio.so.4.1.0
+lenet: /usr/local/lib/libopencv_imgcodecs.so.4.1.0
+lenet: /usr/local/lib/libopencv_objdetect.so.4.1.0
+lenet: /usr/local/lib/libopencv_calib3d.so.4.1.0
+lenet: /usr/local/lib/libopencv_features2d.so.4.1.0
+lenet: /usr/local/lib/libopencv_flann.so.4.1.0
+lenet: /usr/local/lib/libopencv_photo.so.4.1.0
+lenet: /usr/local/lib/libopencv_imgproc.so.4.1.0
+lenet: /usr/local/lib/libopencv_core.so.4.1.0
 lenet: CMakeFiles/lenet.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/assassin/CLionProjects/lenet/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable lenet"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable lenet"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/lenet.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -155,6 +188,6 @@ CMakeFiles/lenet.dir/clean:
 .PHONY : CMakeFiles/lenet.dir/clean
 
 CMakeFiles/lenet.dir/depend:
-	cd /home/assassin/CLionProjects/lenet/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/assassin/CLionProjects/lenet /home/assassin/CLionProjects/lenet /home/assassin/CLionProjects/lenet/cmake-build-debug /home/assassin/CLionProjects/lenet/cmake-build-debug /home/assassin/CLionProjects/lenet/cmake-build-debug/CMakeFiles/lenet.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/assassin/CLionProjects/lenet-5-c/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/assassin/CLionProjects/lenet-5-c /home/assassin/CLionProjects/lenet-5-c /home/assassin/CLionProjects/lenet-5-c/cmake-build-debug /home/assassin/CLionProjects/lenet-5-c/cmake-build-debug /home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/CMakeFiles/lenet.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/lenet.dir/depend
 

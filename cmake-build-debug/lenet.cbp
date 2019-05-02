@@ -5,128 +5,167 @@
 		<Option title="lenet"/>
 		<Option makefile_is_custom="1"/>
 		<Option compiler="gcc"/>
-		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\usr\;CMake Files\..\..\..\..\usr\local\;CMake Files\..\..\..\..\usr\local\opencv4\;CMake Files\..\..\..\..\usr\local\opencv4\lib\;CMake Files\..\..\..\..\usr\local\opencv4\lib\cmake\;CMake Files\..\..\..\..\usr\local\opencv4\lib\cmake\opencv4\;"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\usr\;CMake Files\..\..\..\..\usr\local\;CMake Files\..\..\..\..\usr\local\lib\;CMake Files\..\..\..\..\usr\local\lib\cmake\;CMake Files\..\..\..\..\usr\local\lib\cmake\Boost-1.70.0\;CMake Files\..\..\..\..\usr\local\lib\cmake\boost_headers-1.70.0\;CMake Files\..\..\..\..\usr\local\lib\cmake\boost_system-1.70.0\;CMake Files\..\..\..\..\usr\local\lib\cmake\boost_filesystem-1.70.0\;CMake Files\..\..\..\..\usr\local\lib\cmake\opencv4\;"/>
 		<Build>
 			<Target title="all">
-				<Option working_dir="/home/assassin/CLionProjects/lenet/cmake-build-debug"/>
+				<Option working_dir="/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j16 -f &quot;/home/assassin/CLionProjects/lenet/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/assassin/CLionProjects/lenet/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j16 -f &quot;/home/assassin/CLionProjects/lenet/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j16 -f &quot;/home/assassin/CLionProjects/lenet/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="rebuild_cache">
-				<Option working_dir="/home/assassin/CLionProjects/lenet/cmake-build-debug"/>
+				<Option working_dir="/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j16 -f &quot;/home/assassin/CLionProjects/lenet/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/assassin/CLionProjects/lenet/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j16 -f &quot;/home/assassin/CLionProjects/lenet/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j16 -f &quot;/home/assassin/CLionProjects/lenet/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="lenet">
-				<Option output="/home/assassin/CLionProjects/lenet/cmake-build-debug/lenet" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/assassin/CLionProjects/lenet/cmake-build-debug"/>
+				<Option output="/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/lenet" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/assassin/CLionProjects/lenet/cmake-build-debug/include"/>
+					<Add directory="/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/include"/>
 					<Add directory="/usr/local/cuda/include"/>
-					<Add directory="/home/assassin/CLionProjects/lenet/lenet"/>
-					<Add directory="/usr/local/opencv4/include/opencv4"/>
-					<Add directory="/usr/include/c++/7"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
-					<Add directory="/usr/include/c++/7/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/home/assassin/CLionProjects/lenet-5-c/lenet"/>
+					<Add directory="/usr/local/include/opencv4"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
 					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include-fixed"/>
 					<Add directory="/usr/include/x86_64-linux-gnu"/>
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j16 -f &quot;/home/assassin/CLionProjects/lenet/cmake-build-debug/Makefile&quot;  VERBOSE=1 lenet"/>
-					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/assassin/CLionProjects/lenet/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j16 -f &quot;/home/assassin/CLionProjects/lenet/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j16 -f &quot;/home/assassin/CLionProjects/lenet/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/Makefile&quot;  VERBOSE=1 lenet"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="lenet/fast">
-				<Option output="/home/assassin/CLionProjects/lenet/cmake-build-debug/lenet" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/assassin/CLionProjects/lenet/cmake-build-debug"/>
+				<Option output="/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/lenet" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/assassin/CLionProjects/lenet/cmake-build-debug/include"/>
+					<Add directory="/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/include"/>
 					<Add directory="/usr/local/cuda/include"/>
-					<Add directory="/home/assassin/CLionProjects/lenet/lenet"/>
-					<Add directory="/usr/local/opencv4/include/opencv4"/>
-					<Add directory="/usr/include/c++/7"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
-					<Add directory="/usr/include/c++/7/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/home/assassin/CLionProjects/lenet-5-c/lenet"/>
+					<Add directory="/usr/local/include/opencv4"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
 					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include-fixed"/>
 					<Add directory="/usr/include/x86_64-linux-gnu"/>
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j16 -f &quot;/home/assassin/CLionProjects/lenet/cmake-build-debug/Makefile&quot;  VERBOSE=1 lenet/fast"/>
-					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/assassin/CLionProjects/lenet/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j16 -f &quot;/home/assassin/CLionProjects/lenet/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j16 -f &quot;/home/assassin/CLionProjects/lenet/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/Makefile&quot;  VERBOSE=1 lenet/fast"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="edit_cache">
-				<Option working_dir="/home/assassin/CLionProjects/lenet/cmake-build-debug"/>
+				<Option working_dir="/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j16 -f &quot;/home/assassin/CLionProjects/lenet/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="/usr/bin/make -j16 -f &quot;/home/assassin/CLionProjects/lenet/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j16 -f &quot;/home/assassin/CLionProjects/lenet/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j16 -f &quot;/home/assassin/CLionProjects/lenet/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/assassin/CLionProjects/lenet/cmake-build-debug/include/data.cpp">
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/include/data.cpp">
 			<Option target="lenet"/>
 		</Unit>
-		<Unit filename="/home/assassin/CLionProjects/lenet/cmake-build-debug/include/data.h">
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/include/data.h">
 			<Option target="lenet"/>
 		</Unit>
-		<Unit filename="/home/assassin/CLionProjects/lenet/cmake-build-debug/include/lenet.cpp">
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/include/lenet.cpp">
 			<Option target="lenet"/>
 		</Unit>
-		<Unit filename="/home/assassin/CLionProjects/lenet/cmake-build-debug/include/lenet.h">
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/include/lenet.h">
 			<Option target="lenet"/>
 		</Unit>
-		<Unit filename="/home/assassin/CLionProjects/lenet/cmake-build-debug/include/maths.cpp">
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/include/maths.cpp">
 			<Option target="lenet"/>
 		</Unit>
-		<Unit filename="/home/assassin/CLionProjects/lenet/cmake-build-debug/include/maths.h">
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/cmake-build-debug/include/maths.h">
 			<Option target="lenet"/>
 		</Unit>
-		<Unit filename="/home/assassin/CLionProjects/lenet/main.cpp">
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/main.cpp">
 			<Option target="lenet"/>
 		</Unit>
-		<Unit filename="/home/assassin/CLionProjects/lenet/CMakeLists.txt">
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
-		<Unit filename="/home/assassin/CLionProjects/lenet/../../../../usr/local/opencv4/lib/cmake/opencv4/OpenCVConfig-version.cmake">
-			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\opencv4\lib\cmake\opencv4\"/>
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/../../../../usr/local/lib/cmake/BoostDetectToolset-1.70.0.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\"/>
 		</Unit>
-		<Unit filename="/home/assassin/CLionProjects/lenet/../../../../usr/local/opencv4/lib/cmake/opencv4/OpenCVConfig.cmake">
-			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\opencv4\lib\cmake\opencv4\"/>
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/../../../../usr/local/lib/cmake/Boost-1.70.0/BoostConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\Boost-1.70.0\"/>
 		</Unit>
-		<Unit filename="/home/assassin/CLionProjects/lenet/../../../../usr/local/opencv4/lib/cmake/opencv4/OpenCVModules-release.cmake">
-			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\opencv4\lib\cmake\opencv4\"/>
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/../../../../usr/local/lib/cmake/Boost-1.70.0/BoostConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\Boost-1.70.0\"/>
 		</Unit>
-		<Unit filename="/home/assassin/CLionProjects/lenet/../../../../usr/local/opencv4/lib/cmake/opencv4/OpenCVModules.cmake">
-			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\opencv4\lib\cmake\opencv4\"/>
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/../../../../usr/local/lib/cmake/boost_headers-1.70.0/boost_headers-config-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\boost_headers-1.70.0\"/>
+		</Unit>
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/../../../../usr/local/lib/cmake/boost_headers-1.70.0/boost_headers-config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\boost_headers-1.70.0\"/>
+		</Unit>
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/../../../../usr/local/lib/cmake/boost_system-1.70.0/boost_system-config-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\boost_system-1.70.0\"/>
+		</Unit>
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/../../../../usr/local/lib/cmake/boost_system-1.70.0/boost_system-config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\boost_system-1.70.0\"/>
+		</Unit>
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/../../../../usr/local/lib/cmake/boost_system-1.70.0/libboost_system-variant-shared.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\boost_system-1.70.0\"/>
+		</Unit>
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/../../../../usr/local/lib/cmake/boost_system-1.70.0/libboost_system-variant-static.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\boost_system-1.70.0\"/>
+		</Unit>
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/../../../../usr/local/lib/cmake/boost_filesystem-1.70.0/boost_filesystem-config-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\boost_filesystem-1.70.0\"/>
+		</Unit>
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/../../../../usr/local/lib/cmake/boost_filesystem-1.70.0/boost_filesystem-config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\boost_filesystem-1.70.0\"/>
+		</Unit>
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/../../../../usr/local/lib/cmake/boost_filesystem-1.70.0/libboost_filesystem-variant-shared.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\boost_filesystem-1.70.0\"/>
+		</Unit>
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/../../../../usr/local/lib/cmake/boost_filesystem-1.70.0/libboost_filesystem-variant-static.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\boost_filesystem-1.70.0\"/>
+		</Unit>
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/../../../../usr/local/lib/cmake/opencv4/OpenCVConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\opencv4\"/>
+		</Unit>
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/../../../../usr/local/lib/cmake/opencv4/OpenCVConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\opencv4\"/>
+		</Unit>
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/../../../../usr/local/lib/cmake/opencv4/OpenCVModules-release.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\opencv4\"/>
+		</Unit>
+		<Unit filename="/home/assassin/CLionProjects/lenet-5-c/../../../../usr/local/lib/cmake/opencv4/OpenCVModules.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\opencv4\"/>
 		</Unit>
 	</Project>
 </CodeBlocks_project_file>
