@@ -125,9 +125,9 @@ double lenet::test(const vector<Mat> &test_x, const vector<Mat> &test_y)
 
     vector<int> a = find_max(test_y);
 
-    vector<int> bad = find(h - a);
+    double bad_num = count_dif(h , a);
 
-    double er = (double)bad.size() / (double)test_y.size();
+    double er = bad_num / (double)test_y.size();
 
     return er;
 }
@@ -184,7 +184,7 @@ void lenet::init()
                     // "前一层所有通道",对"本层所有通道",层对层的全连接,卷积核权值W,进行均匀分布初始化,范围为:[-1,1]*sqrt(6/(fan_in+fan_out))
                     weights.create(_layers.at(L).iSizeKer, _layers.at(L).iSizeKer, CV_32FC1);
                     rnger.fill(weights, cv::RNG::UNIFORM, cv::Scalar::all(-maximum), cv::Scalar::all( maximum));
-                    _layers.at(L).Ker[I][J]=weights// 注意是W[列I][行J],I为上一层的数目，J为当前层数目
+                    _layers.at(L).Ker[I][J]=weights;// 注意是W[列I][行J],I为上一层的数目，J为当前层数目
                     _layers.at(L).Ker_delta[I][J]=Mat::zeros(_layers.at(L).iSizeKer, _layers.at(L).iSizeKer,CV_32FC1);
                 }
             }
@@ -242,7 +242,7 @@ void lenet::init()
                 // 初始化当前层与上一层的连接权值
                 weights.create(fvnum, onum, CV_32FC1);
                 rnger.fill(weights, cv::RNG::UNIFORM, cv::Scalar::all(-maximum), cv::Scalar::all( maximum));
-                _layers.at(L).W=weights// 注意是W[列I][行J],I为上一层的数目，J为当前层数目
+                _layers.at(L).W=weights;// 注意是W[列I][行J],I为上一层的数目，J为当前层数目
                 _layers.at(L).W_delta=Mat::zeros(fvnum, onum,CV_32FC1);
 
                 // 对本层输出通道加性偏置进行0值初始化
@@ -264,7 +264,7 @@ void lenet::init()
 
                 weights.create(fvnum, onum, CV_32FC1);
                 rnger.fill(weights, cv::RNG::UNIFORM, cv::Scalar::all(-maximum), cv::Scalar::all( maximum));
-                _layers.at(L).W=weights// 注意是W[列I][行J],I为上一层的数目，J为当前层数目
+                _layers.at(L).W=weights;// 注意是W[列I][行J],I为上一层的数目，J为当前层数目
                 _layers.at(L).W_delta=Mat::zeros(fvnum, onum,CV_32FC1);
 
                 // 对本层输出通道加性偏置进行0值初始化
@@ -307,7 +307,7 @@ void lenet::feed_forward(const vector<Mat> &train_x)
                 // 对当前层第J个通道的对上一层的所有卷积之和z，进行初始化(batchsize幅输入同时处理)
                 vector<Mat> z;//z是一个通道内batchsize幅输入的图片总和
                 bool conv_first_time = true;
-
+                vector<Mat> temp;
                 // 1.卷积
                 for (int I = 0; I < _layers.at(L - 1).iChannel; I++)
                 {
@@ -323,7 +323,8 @@ void lenet::feed_forward(const vector<Mat> &train_x)
                     }
                     else
                     {
-                        z.add(convolution(_layers.at(L - 1).X.at(I), _layers.at(L).Ker.at(I).at(J), "valid"));
+                        temp=convolution(_layers.at(L - 1).X.at(I), _layers.at(L).Ker.at(I).at(J), "valid");
+                        myaccumulate(z,temp);
                     }
                 }
 
@@ -331,7 +332,7 @@ void lenet::feed_forward(const vector<Mat> &train_x)
                 //TODO B的调用
                 for (int i = 0; i < _batchsize; ++i) {
 
-                    _layers.at(L).X.at(J).at(i) = z.at(i) + _layers.at(L).B[J];
+                    _layers.at(L).X.at(J).at(i) = z.at(i) + _layers.at(L).B.at<float>(J,0);
                 }
 
 
@@ -424,15 +425,73 @@ void lenet::feed_forward(const vector<Mat> &train_x)
             }
         }
     }
-
     // 将最后一层（全连接层）的输出结果喂给_Y，作为神经网络的输出
+    //TODO:_Y是向量的转置,label也是
     _Y = _layers.at(n-1).X_vector;
 }
 
+void lenet::update(void){
+    // lenet网络层数
+    int n = _layers.size();
+
+    // 对权值和偏置的更新采用动量法（对梯度下降法的改进，防止反复震荡），参考文献：https://blog.csdn.net/qq_37053885/article/details/81605365
+
+    for (int L = 1; L < n; L++)
+    {
+        // ======================================================================
+        // 以下代码用于卷积层的计算
+        if (_layers.at(L).type == 'c')
+        {
+            // 对本层输出通道数做循环
+            for (int J = 0; J < _layers.at(L).iChannel; J++)
+            {
+                // 对上一层输出通道数做循环
+                for (int I = 0; I < _layers.at(L - 1).iChannel; I++)
+                {
+                    // 这里没什么好说的，就是普通的权值更新的公式：W_new = W_old - alpha * de / dW（误差对权值导数）
+                    // net.layers{ L }.Ker_delta{ I }{J} = net.eta * net.layers{ L }.Ker_delta{ I }{J} -net.alpha * net.layers{ L }.Ker_grad{ I }{J};
+                    // net.layers{ L }.Ker{ I }{J} = net.layers{ L }.Ker{ I }{J} +net.layers{ L }.Ker_delta{ I }{J};
+                    _layers.at(L).Ker_delta.at(I).at(J) = _layers.at(L).Ker_delta.at(I).at(J) * _eta - _layers.at(L).Ker_grad.at(I).at(J) * _alpha;
+                    _layers.at(L).Ker.at(I).at(J) = _layers.at(L).Ker.at(I).at(J) + _layers.at(L).Ker_delta.at(I).at(J);
+                }
+            }
+
+            // 本层一个通道输出对应一个加性偏置net.layers{ L }.B{ J }
+            _layers.at(L).B_delta = _layers.at(L).B_delta * _eta - _layers.at(L).B_grad * _alpha;
+            _layers.at(L).B = _layers.at(L).B + _layers.at(L).B_delta;
+        }
+
+        // ======================================================================
+        // 以下代码用于下采样层的计算
+//        if (_layers.at(L).type == 's')
+//        {
+//            // 本层一个通道输出对应一个加性偏置net.layers{ L }.B{ J }
+//            _layers.at(L).B_delta = _layers.at(L).B_delta * _eta - _layers.at(L).B_grad * _alpha;
+//            _layers.at(L).B = _layers.at(L).B + _layers.at(L).B_delta;
+//
+//            // 本层一个通道输出对应一个乘性偏置net.layers{ L }.Beta{ J }
+//            _layers.at(L).Beta_delta = _layers.at(L).Beta_delta * _eta - _layers.at(L).Beta_grad * _alpha;
+//            _layers.at(L).Beta = _layers.at(L).Beta + _layers.at(L).Beta_delta;
+//        }
+
+        // ======================================================================
+        // 以下代码用于全连接层的计算
+        if (_layers.at(L).type == 'f')
+        {
+            // 本层一个通道输出对应一个加权系数net.layers{ L }.W
+            _layers.at(L).W_delta = _layers.at(L).W_delta * _eta -  _layers.at(L).W_grad * _alpha;
+            _layers.at(L).W = _layers.at(L).W + _layers.at(L).W_delta;
+
+            // 本层一个通道输出对应一个加性偏置net.layers{ L }.B{ J }
+            _layers.at(L).B_delta = _layers.at(L).B_delta * _eta - _layers.at(L).B_grad * _alpha;
+            _layers.at(L).B = _layers.at(L).B + _layers.at(L).B_delta;
+        }
+    }
+}
 
 // lenet网络,反向传播(批处理算法)
-void lenet::back_propagation(const vector<Mat> &train_y)
-{
+void lenet::back_propagation(const vector<Mat> &train_y){
+
     // lenet网络层数
     int n = _layers.size();
 
@@ -455,7 +514,7 @@ void lenet::back_propagation(const vector<Mat> &train_y)
     //_err = 0.5 * E.pow(2).sum() / E.size();// 当前轮的当前批次的交叉熵
     //*****************************************************************************************
     //TODO: 用交叉熵计算
-    _err=matsum();
+    _err=calc_cross_entropy(_Y,train_y);
     // ************** 灵敏度(残差)的反向传播 ******************************
 
     int tmp = 1;
@@ -645,67 +704,5 @@ void lenet::back_propagation(const vector<Mat> &train_y)
         }
 
         // =====================================================================
-    }
-}
-
-
-// lenet网络,卷积层和输出层的权值更新(附加惯性项)
-void lenet::update(void)
-{
-    // lenet网络层数
-    int n = _layers.size();
-
-    // 对权值和偏置的更新采用动量法（对梯度下降法的改进，防止反复震荡），参考文献：https://blog.csdn.net/qq_37053885/article/details/81605365
-
-    for (int L = 1; L < n; L++)
-    {
-        // ======================================================================
-        // 以下代码用于卷积层的计算
-        if (_layers.at(L).type == 'c')
-        {
-            // 对本层输出通道数做循环
-            for (int J = 0; J < _layers.at(L).iChannel; J++)
-            {
-                // 对上一层输出通道数做循环
-                for (int I = 0; I < _layers.at(L - 1).iChannel; I++)
-                {
-                    // 这里没什么好说的，就是普通的权值更新的公式：W_new = W_old - alpha * de / dW（误差对权值导数）
-                    // net.layers{ L }.Ker_delta{ I }{J} = net.eta * net.layers{ L }.Ker_delta{ I }{J} -net.alpha * net.layers{ L }.Ker_grad{ I }{J};
-                    // net.layers{ L }.Ker{ I }{J} = net.layers{ L }.Ker{ I }{J} +net.layers{ L }.Ker_delta{ I }{J};
-                    _layers.at(L).Ker_delta.at(I).at(J) = _layers.at(L).Ker_delta.at(I).at(J) * _eta - _layers.at(L).Ker_grad.at(I).at(J) * _alpha;
-                    _layers.at(L).Ker.at(I).at(J) = _layers.at(L).Ker.at(I).at(J) + _layers.at(L).Ker_delta.at(I).at(J);
-                }
-            }
-
-            // 本层一个通道输出对应一个加性偏置net.layers{ L }.B{ J }
-            _layers.at(L).B_delta = _layers.at(L).B_delta * _eta - _layers.at(L).B_grad * _alpha;
-            _layers.at(L).B = _layers.at(L).B + _layers.at(L).B_delta;
-        }
-
-        // ======================================================================
-        // 以下代码用于下采样层的计算
-//        if (_layers.at(L).type == 's')
-//        {
-//            // 本层一个通道输出对应一个加性偏置net.layers{ L }.B{ J }
-//            _layers.at(L).B_delta = _layers.at(L).B_delta * _eta - _layers.at(L).B_grad * _alpha;
-//            _layers.at(L).B = _layers.at(L).B + _layers.at(L).B_delta;
-//
-//            // 本层一个通道输出对应一个乘性偏置net.layers{ L }.Beta{ J }
-//            _layers.at(L).Beta_delta = _layers.at(L).Beta_delta * _eta - _layers.at(L).Beta_grad * _alpha;
-//            _layers.at(L).Beta = _layers.at(L).Beta + _layers.at(L).Beta_delta;
-//        }
-
-        // ======================================================================
-        // 以下代码用于全连接层的计算
-        if (_layers.at(L).type == 'f')
-        {
-            // 本层一个通道输出对应一个加权系数net.layers{ L }.W
-            _layers.at(L).W_delta = _layers.at(L).W_delta * _eta -  _layers.at(L).W_grad * _alpha;
-            _layers.at(L).W = _layers.at(L).W + _layers.at(L).W_delta;
-
-            // 本层一个通道输出对应一个加性偏置net.layers{ L }.B{ J }
-            _layers.at(L).B_delta = _layers.at(L).B_delta * _eta - _layers.at(L).B_grad * _alpha;
-            _layers.at(L).B = _layers.at(L).B + _layers.at(L).B_delta;
-        }
     }
 }

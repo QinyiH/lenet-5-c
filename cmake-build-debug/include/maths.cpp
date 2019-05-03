@@ -215,6 +215,111 @@ vector<Mat> full_connect(const Mat &Weights, const vector<Mat> &vector_vector, c
     }
 }
 
+vector<int> find_max(const vector<Mat> &vector_10) {
+    int batch=vector_10.size();
+    if(batch==0){
+        cout<<"There is nothing in the index!"<<endl;
+        cout<<"Is the set empty?"<<endl;
+        vector<int> tmp;
+        return tmp;
+
+    }
+    vector<int> vector_index;
+    //vector<double>::iterator maximum_loc;
+    double max, min;
+    Point min_loc, max_loc;
+    for (int i = 0; i < batch; ++i) {
+        //maximum_loc = std::max_element(std::begin(vector_10), std::end(vector_10));
+        minMaxLoc(vector_10.at(i), &min, &max, &min_loc, &max_loc);
+        if(max_loc.y>=max_loc.x)
+            vector_index.push_back(max_loc.y);
+        else
+            vector_index.push_back(max_loc.x);
+    }
+    return vector_index;
+}
+
+double count_dif(const vector<int> &index_1, const vector<int> &index_2) {
+    int batch=index_1.size();
+    int batch_check=index_2.size();
+    if (batch!=batch_check){
+        cout<<"Test() error: Sizes are not equal!"<<endl;
+        double tmp;
+        return tmp;
+    }
+    double count=0;
+    for (int i = 0; i < batch; ++i) {
+        if (index_1.at(i)!=index_2.at(i)){
+            count++;
+        }
+    }
+    return count;
+
+}
+
+vector<vector<Mat>> convolution(const vector<Mat> &batch_singlech_inimage, const Mat &kernel, string mode) {
+    int batch=batch_singlech_inimage.size();
+    for (int i = 0; i < batch; ++i) {
+        for (int j = 0; j < ; ++j) {
+
+        }
+    }
+}
+
+
+Mat im2col(const vector<Mat> &FeatureMaps, const int kernelsize) {
+    //int Blocksize = kernelsize;
+    //int colBlock = kernelsize;
+    int d = FeatureMaps.size();
+    int m = FeatureMaps.at(0).rows;
+    //int n = FeatureMaps.cols;
+    int y = m - kernelsize + 1;
+    int x = y;
+    cv::Mat col = cv::Mat::zeros(x*y,pow(kernelsize,2)*d,CV_32FC1);
+    for (int i = 0; i < y; ++i) {
+        for (int j = 0; j < x; ++j) {
+            int rowIdx = i + j*y;
+            for (int k = 0; k < d; ++k) {
+                for(unsigned int yy =0; yy < kernelsize; ++yy)
+                    for(unsigned int xx=0; xx < kernelsize; ++xx)
+                    {
+                        // here take care of the transpose in the original method
+                        //int colIdx = xx + yy*colBlock; // this would be not transposed
+                        int colIdx = xx*kernelsize + yy+d*pow(kernelsize,2);
+
+                        col.at<float>(rowIdx,colIdx) = FeatureMaps.at(d).at<float>(i+yy, j+xx);
+                    }
+            }
+        }
+    }
+}
+
+void myaccumulate(vector<Mat> &z, vector<Mat> &conv_result) {
+    int batch=conv_result.size();
+    if (z.size()==0){
+        for (int i = 0; i < batch; ++i) {
+            z.push_back(Mat::zeros(conv_result.at(0).rows,conv_result.at(0).cols,CV_32FC1));
+        }
+    }
+
+    for (int i = 0; i < batch; ++i) {
+    z.at(i)=z.at(i)+conv_result.at(i);
+    }
+}
+
+double calc_cross_entropy(const vector<Mat> output, const vector<Mat> &train_y) {
+    double cross_entropy=0;
+    int batch=output.size();
+    for (int i = 0; i < batch; ++i) {
+        Mat temp=output.at(i)*train_y.at(i).t();
+        cross_entropy=cross_entropy-log(temp.at<float>(0,0));
+    }
+}
+
+vector<Mat> derivation_fcl(const vector<Mat> &Delta_vector, const vector<Mat> &image_batch) {
+    return vector<Mat>();
+}
+
 vector<double> soft_max(const vector<double> &vector) {
     int dim = vector.size();
     if (dim == 0) {
