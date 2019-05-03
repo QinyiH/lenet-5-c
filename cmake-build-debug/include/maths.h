@@ -79,12 +79,18 @@ vector<Mat> derivation_fcl(const vector<Mat>& Delta_vector, const vector<Mat> &i
 
 Mat im2col(const vector<Mat>& FeatureMaps,const int kernelsize);
 
-/相当于径向基函数(RBF)
+//相当于径向基函数(RBF)
 vector<int> find_max(const vector<Mat> &vector_10);
 
 //计算输出label和label的不同的个数，即预测错误率
 double count_dif(const vector<int> &index_1, const vector<int> &index_2);
 
-vector<vector<Mat>> convolution(const vector<Mat> &batch_singlech_inimage, const Mat &kernel,string mode);
+//批处理单卷积核卷积
+vector<Mat> convolution(const vector<Mat> &batch_singlech_inimage, const Mat &kernel,string mode);
+
+void myaccumulate(vector<Mat> &z,vector<Mat> &conv_result);
+
+//计算交叉熵
+double calc_cross_entropy(const vector<Mat> output,const vector<Mat> &train_y);
 
 #endif //LENET_MATHS_H

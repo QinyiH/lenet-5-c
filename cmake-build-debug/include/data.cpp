@@ -20,11 +20,11 @@ size_t load_image(string file_addr, vector<cv::Mat>& database)
 
 void create_label(vector<int> image_size,vector<cv::Mat>& label_set)
 {
-    cv::Mat one_hot,init_index=cv::Mat::zeros(10,1,CV_8UC1);
+    cv::Mat one_hot,init_index=cv::Mat::zeros(1,10,CV_8UC1);
     for (int i = 0; i < 10; i++)
     {
         one_hot=init_index;
-        one_hot[i] = 1;
+        one_hot.at<float>(1,i) = 1;
         for (int j = 0; j < image_size.at(i); j++)
         {
             label_set.push_back(one_hot);
