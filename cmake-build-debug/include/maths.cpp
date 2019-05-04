@@ -141,7 +141,7 @@ vector<int> randperm_vector(int num) {
 
 }
 
-vector<Mat> down_sample_max_pooling(const vector<Mat> &vector_matrix) {
+vector<Mat> down_sample_max_pooling(const vector<Mat> &vector_matrix,vector<vector<Point>>& max_loc_vector) {
     int nc = vector_matrix.at(0).cols;
     int nl = vector_matrix.at(0).rows;
     int batch = vector_matrix.size();
@@ -156,35 +156,56 @@ vector<Mat> down_sample_max_pooling(const vector<Mat> &vector_matrix) {
         return temp;
     }
     vector<Mat> vector_matrix_maxpooling;
-    Mat featureMap = Mat::zeros(nl / 2, nc / 2, CV_8UC1);
-    vector<Mat> tmp_img_batch = vector_matrix;
+    Mat featureMap = Mat::zeros(nl / 2, nc / 2, CV_32FC1);
     for (int i = 0; i < batch; ++i) {
         vector_matrix_maxpooling.push_back(featureMap);
     }
+//    for (int k = 0; k < batch; ++k) {
+//        for (int j = 0; j < nl / 2; j++) {
+//            uchar *data_in1 = tmp_img_batch.at(k).ptr<uchar>(j * 2);
+//            uchar *data_in2 = tmp_img_batch.at(k).ptr<uchar>(j * 2 + 1);
+//            uchar *data_out = vector_matrix_maxpooling.at(k).ptr<uchar>(j);
+//            for (int i = 0; i < nc / 2; i++) {
+//                data_out[i] = max(max(data_in1[i * 2], data_in1[i * 2 + 1]), max(data_in2[i * 2], data_in2[i * 2 + 1]));
+//            }
+//        }
+//    }
+    double minVal,maxVal;
+    Point minLoc,maxLoc;
+    Mat slice_tmp;
     for (int k = 0; k < batch; ++k) {
-        for (int j = 0; j < nl / 2; j++) {
-            uchar *data_in1 = tmp_img_batch.at(k).ptr<uchar>(j * 2);
-            uchar *data_in2 = tmp_img_batch.at(k).ptr<uchar>(j * 2 + 1);
-            uchar *data_out = vector_matrix_maxpooling.at(k).ptr<uchar>(j);
-            for (int i = 0; i < nc / 2; i++) {
-                data_out[i] = max(max(data_in1[i * 2], data_in1[i * 2 + 1]), max(data_in2[i * 2], data_in2[i * 2 + 1]));
+        for (int i = 0; i < nc/2; ++i) {
+            for (int j = 0; j < nl/2; ++j) {
+                slice_tmp=vector_matrix.at(k)(Rect(j*2,i*2,2,2));
+                minMaxLoc(slice_tmp,&minVal,&maxVal,&minLoc,&maxLoc);
+                vector_matrix_maxpooling.at(k).at<float>(j,i)=maxVal;
+                max_loc_vector.at(k).push_back(maxLoc);
             }
         }
     }
+
     return vector_matrix_maxpooling;
 
 }
 
-vector<Mat> reshape2vector(const vector<Mat> &vector_matrix) {
-    int batch = vector_matrix.size();
+Mat reshape2vector(const vector<Mat> &vector_matrix) {
+    int channel = vector_matrix.size();
     int dim=pow(vector_matrix.at(0).cols,2);
-    vector<Mat> vector_vector;
-    Mat tmp;
-    for (int i = 0; i < batch; ++i) {
-        tmp=vector_matrix.at(i).reshape(0,dim);
-        vector_vector.push_back(tmp);
+    Mat vector_out;
+    Mat tmp1,tmp2;
+    for (int i = 0; i < channel; ++i) {
+        tmp1=vector_matrix.at(i).reshape(0,dim);
+        vconcat(tmp1,tmp2,vector_out);
+        tmp1=vector_out;
     }
-    return vector_vector;
+    return vector_out;
+}
+
+vector<vector<Mat>> reshape2channel(const vector<Mat> Delta_vector, const int iChannel, const int SizePic_col, const int SizePic_row){
+    int batch=Delta_vector.size();
+    for (int i = 0; i < batch; ++i) {
+
+    }
 }
 
 vector<Mat> calc_error(const vector<Mat> &Y, const vector<Mat> &label) {
@@ -257,7 +278,7 @@ double count_dif(const vector<int> &index_1, const vector<int> &index_2) {
 
 }
 
-vector<vector<Mat>> convolution(const vector<Mat> &batch_singlech_inimage, const Mat &kernel, string mode) {
+vector<Mat> convolution(const vector<Mat> &batch_singlech_inimage, const Mat &kernel, string mode) {
     int batch=batch_singlech_inimage.size();
     for (int i = 0; i < batch; ++i) {
         for (int j = 0; j < ; ++j) {
@@ -265,6 +286,7 @@ vector<vector<Mat>> convolution(const vector<Mat> &batch_singlech_inimage, const
         }
     }
 }
+
 
 
 Mat im2col(const vector<Mat> &FeatureMaps, const int kernelsize) {
@@ -316,8 +338,31 @@ double calc_cross_entropy(const vector<Mat> output, const vector<Mat> &train_y) 
     }
 }
 
-vector<Mat> derivation_fcl(const vector<Mat> &Delta_vector, const vector<Mat> &image_batch) {
-    return vector<Mat>();
+vector<Mat> derivation_fcl(const vector<Mat> &Delta_vector, const Mat &Weight) {
+    int batch=Delta_vector.size();
+    vector<Mat> Delta_vector_former;
+    for (int i = 0; i < batch; ++i) {
+        Delta_vector_former.push_back(Delta_vector.at(i)*Weight);
+    }
+    return Delta_vector_former;
+}
+
+vector<Mat> vector_transpose(const vector<Mat> &X_vector) {
+    int batch=X_vector.size();
+    vector<Mat> _Y;
+    for (int i = 0; i < batch; ++i) {
+        _Y.push_back(X_vector.at(i).t());
+    }
+    return _Y;
+}
+
+//TODO 更新权值用
+vector<Mat> grad_fcl_W(const vector<Mat> &Delta_vector, const vector<Mat> &image_batch) {
+    int batch=image_batch.size();
+    Mat W_grad_former=Mat::zeros();
+    for (int i = 0; i < batch; ++i) {
+        W_grad_former=W_grad_former+image_batch.at(i)*Delta_vector_latter;
+    }
 }
 
 vector<double> soft_max(const vector<double> &vector) {

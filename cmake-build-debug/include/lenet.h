@@ -74,6 +74,7 @@ typedef struct {
     // 当前层输出通道的加性偏置的梯度
     Mat B_grad;
 
+    //TODO:重复训练记得清空
     //MaxPooling层的参数，用于存储最大像素点的位置。
     vector<vector<Point>> max_loc_vector;
 

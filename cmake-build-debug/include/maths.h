@@ -57,12 +57,15 @@ vector<Mat> derivation(const vector<Mat> &vector_array, activation_function_type
 vector<int> randperm_vector(int num);
 
 //TODO down sample & up sample
-vector<Mat> down_sample_max_pooling(const vector<Mat> &vector_array);
+vector<Mat> down_sample_max_pooling(const vector<Mat> &vector_array,vector<vector<Point>>& max_loc_vector);
 
 vector<Mat> up_sample_max_pooling(const vector<Mat> &vector_array3D);
 
 //铺平函数，用于第一层full connected layer
-vector<Mat> reshape2vector(const vector<Mat>& vector_matrix);
+Mat reshape2vector(const vector<Mat>& vector_matrix);
+
+//反向传播时f-->s
+vector<vector<Mat>> reshape2channel(const vector<Mat> Delta_vector, const int iChannel, const int SizePic_col, const int SizePic_row);
 
 //full connector layer的计算
 // trans:是否转置
@@ -75,7 +78,9 @@ vector<Mat> calc_error(const vector<Mat>& Y, const vector<Mat>& label);
 vector<Mat> matrix_dot(const vector<Mat> &matrix1,const vector<Mat> &matrix2);
 
 //全连接层的偏导
-vector<Mat> derivation_fcl(const vector<Mat>& Delta_vector, const vector<Mat> &image_batch);
+vector<Mat> derivation_fcl(const vector<Mat>& Delta_vector, const Mat &Weight);
+
+vector<Mat> grad_fcl_W(const vector<Mat> &Delta_vector, const vector<Mat> &image_batch);
 
 Mat im2col(const vector<Mat>& FeatureMaps,const int kernelsize);
 
@@ -92,5 +97,8 @@ void myaccumulate(vector<Mat> &z,vector<Mat> &conv_result);
 
 //计算交叉熵
 double calc_cross_entropy(const vector<Mat> output,const vector<Mat> &train_y);
+
+vector<Mat> vector_transpose(const vector<Mat> & X_vector);
+
 
 #endif //LENET_MATHS_H
